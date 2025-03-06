@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<TITLE> Your First Ace </TITLE>
+<meta name=keywords content="cards, probability, expected value, trials, deck">
+<meta charset="UTF-8">
+        <style type="text/css">
+body {
+background: white;
+color: black;
+font-family: Arial,Helvetica,sans-serif;
+font-size: 100%;
+}
+h1 {
+text-align: center;
+font-size: 2.5em;
+color: navy;
+}
+h2 {
+text-align: center;
+font-size: 2.0em;
+color: darkslateblue;
+}
+p.cen {
+font-size: 1.5em;
+text-align: center;
+}
+hr {
+border: 3px solid blue;
+}
+a:link { color: red; font-size: 1.25em; }
+a:visited { color: red; font-size: 1.25em; }
+a:hover { color: red; font-size: 1.25em; }
+a:active { color: red; font-size: 1.25em; }
+</style>
+</HEAD>
+<BODY>
+
+<h1> Your First Ace </h1>
+
+<P>
+While playing solitaire, I wondered, in a shuffled deck, how many cards might you expect to turn over before seeing your first ace?
+Seems like a simple problem, but it's not, and it leads to some beautiful math, and a surprising use of calculus where you would not expect continuous math at all.
+
+<P>
+If you want to know how far the last ace is from the end of the deck, the answer is the same; just deal the cards in reverse.
+
+<P>
+First, a simple case, just 13 cards, ace through king of hearts.
+Ace could be anywhere from first to last with equal probability, so the average of all of those is 7.
+You'll see ace on the seventh card, more or less, give or take.
+However, it's good practice to follow up with a probability tree.
+
+<P>
+First card ace: 1/13.
+<br>
+Ace as the second card: 2 (position) times 12/13 (not ace the first time around) times 1/12 (ace the second time around).
+<br>
+Third position = 3 times 12/13 times 11/12 times 1/11.
+<br>
+…
+
+<P>
+Each line collapses to the position number times 1/13.
+Carry that through and get the sum of (i times 1/13), or 1/13 times ∑ i, which yields 7.
+
+<P>
+A probability tree can evaluate a traditional deck with 4 suits, but the numbers aren't clean and easy, so best to run it through a computer.
+If you're on unix, feed this into bc -l.
+You need -l so bc will do floating point.
+
+<PRE>suits = 4;
+t = 0;
+for(i=1; i&lt;=13*suits - suits + 1; ++i) {
+	s = 1;
+	for(j=1; j&lt;i; ++j) {
+		s = s * (13*suits - suits + 1-j)/(13*suits + 1-j);
+	}
+	s = s * suits / (13*suits + 1-i);
+	t = t + s * i;
+}
+t;
+</PRE>
+
+<P>
+Here's the same program written in python.
+
+<PRE>suits = 4
+t = 0.0
+for i in xrange(1, 13*suits - suits + 2):
+	s = 1.0
+	for j in xrange(1, i):
+		s = s * (13*suits - suits + 1-j)/(13*suits + 1-j)
+	s = s * suits / (13*suits + 1-i)
+	t = t + s * i
+print t
+</PRE>
+
+<P>
+The answer is 10.6.
+Instead of position 7, your first ace comes along in position 10 or 11.
+
+<P>
+Now let's extend to an infinite deck, or if you prefer, sampling with replacement.
+Pull a card out at random and then put it back. Each time the odds of an ace is 1/13, no matter what happened before.
+How long to an ace?
+Intuition says 13, since each trial succeeds with probability 1/13.
+You can see the progression: one suit is 7, 4 suits is 10.6, and an infinite deck is 13.
+In fact the program has the number of suits at the top.
+Change it and see what happens.
+Starting with 1 suit and moving up, you find:
+7, 9, 10, 10.6, 11, 11.28, etc, moving inexorably towards 13.
+(The pattern seems to be 13 - 12/(suits+1), but I'm not gonna try to prove that here!)
+So let's look at the infinite deck, and that's where calculus comes in.
+
+<P>
+For notational convenience, say the odds of success is p, and the odds of failure is q, where q = 1-p.
+In our example, p is 1/13 and q is 12/13.
+You will find success on your first try with probability p.
+Second try success is 2 times p times q.
+Third try success is 3p times q squared.
+Forth time success is 4p times q<sup>3</sup>.
+Take the sum as i runs from 1 to infinity of i times p times q<sup>i-1</sup>.
+Pull p out of the sum, but what do we do with the rest?
+It is ∑ ix<sup>i-1</sup>, where the real variable x is replaced with q.
+But aha! ix<sup>i-1</sup> is the derivative of x<sup>i</sup>.
+So it is the sum of the derivative of x<sup>i</sup>.
+Mathematicians have died and gone to heaven so we can exchange summation and differentiation.
+It becomes the derivative of ∑ x<sup>i</sup>.
+If we started i at 0, instead of 1, we would have a perfect geometric series.
+That series sums to 1/(1-x).
+Subtract 1, since we are starting at i = 1, and get 1/(1-x) - 1.
+The derivative is 1/(1-x)<sup>2</sup>.
+Substitute q in for x, and remember that 1-q = p, and we have 1/p<sup>2</sup>.
+We pulled p out of the sum at the start, so multiply by p and get 1/p.
+There you have it.
+The expected number of trials to success is 1 over the probability of success.
+If the odds of an ace are 1/13 each time, then you can expect to pull 13 cards, on average, give or take, to reach your first ace.
+
+<P>
+Math is quite lovely, isn't it?
+
+</body>

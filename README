@@ -1,0 +1,146 @@
+This project contains popular games, made accessible to blind people.
+Written by Karl Dahlke and David Apps.
+
+These games are stand-alone html + javascript files, and can be run by any
+browser, but most notably, by edbrowse.
+They are also compatible with many screen readers atop a commercial browser.
+
+some of these games employ cookies, to keep score over an extended period
+of time. In other words, you can come back to the game a month later,
+play another round, and track your ongoing performance.
+However, cookies only work if the game is accessed through a url, on a website.
+If you play the game locally, it runs properly,
+but it cannot track your performance over time.
+You can set up a web server on your computer, using apache or lighttpd
+or other public domain software, then run the game through a local domain.
+this allows for cookies, and provides a form of long term memory.
+Or you may be able to run these games off of my website http://eklhad.net.
+
+--------------------
+
+Wordle saw a surge in popularity during and after the pandemic.
+This has subsided somewhat, but it is still a fun game to play.
+The source file is wordle.html.
+Javascript controls the flow of the game, thus javascript must be enabled.
+The 5 letter words are in the wordlist [] array,
+and the 6 letter words are in the word6list [] array.
+Thus you can play wordle using 5 or 6 letter words.
+A toggle lets you choose between the two.
+
+Again, cookies will remember how many you got right and your ongoing score.
+I also remember the words you have seen, so they are not presented again.
+If I did not do this, you are likely to see your first duplicate in sqrt(n)
+trials, which is about 75 games.
+However, with memory in place, you will see almost all the words,
+thousands of them, before they repeat.
+Remember that the score, and memory, only work if wordle is played from a web server.
+If played locally, each game is unrelated to the games that came before.
+No tracking takes place, and it is possible, though very unlikely,
+to see the same word twice in succession.
+
+You can change the mode of the game at the bottom, 5 letter words or 6 letter words.
+You can also enable or disable strict mode.
+In strict mode, each guess must be compatible with the guesses that came before.
+If you guess apple, and I confirm, with an equals sign in the first position,
+that a is indeed the first letter, then every guess after that must begin with a.
+Some people prefer this mode, but some people like to guess an unrelated word,
+to get information on more letters.
+
+enter your guess and click the <Go> button.
+Use the information about letters in position, and letters present but out
+of position, to make another guess, and so on.
+Instructions for the game are on the main page.
+
+--------------------
+
+There are many forms of solitaire on the internet,
+most of them very visual.
+I have taken the time to implement my favorite, calculation, in a text format.
+This is a standard version of solitaire, but not well known.
+It entails more skill and strategy than most games.
+If you would like to play this game, please read the rules and strategies first,
+in calcrules.html.
+Then the game itself is in calculation.html.
+Click on <instructions> to jump to the instructions on the main page.
+When you are ready, click on <Start Game>.
+The first card is presented, thence you can click on one of the possible moves.
+I will then pull another card off the top of the deck, and you can select
+your next move, and so on.
+
+You can review a stack at any time by <Show Stack 1> etc.
+The stacks and the play piles are presented using the standard emojis for the playing cards.
+Your screen reader or adapter should be able to read these emojis
+in a form that you prefer.
+There is always a way to customize the pronunciations of emojis.
+
+Cookies will remember the number of games you played, the total number of
+points accrued, and the average.
+Cookies also remember your preferences: ace 2 3 4 or random, completion mode,
+and the number of stacks.
+Run the game from a web server to take advantage of these features.
+
+--------------------
+
+The Rubix cube has been popular since the 1970's, and remains so today.
+There are cube solvers on the internet, but they are very visual.
+Watch faces turn on the screen, and turn yours the same way.
+However, these are inaccessible to us.
+cube3.html implements a text-based cube solver.
+This assumes you have a brailled Rubix cube at home.
+Affix braille stickers while the cube is in a solved state.
+Choose any letters you like, perhaps letters that correspond to the colors.
+Scramble the cube, then type the letters into the form,
+9 letters at a time, one entry for each face.
+It doesn't matter what the letters are; the program figures it out.
+It generates a sequence of moves that gets you back to start.
+Capital T indicates a clockwise turn of the top face,
+and small t indicates a counterclockwise turn of the top face.
+Is a 180 degree rotation one move or two?
+That is a matter of taste, and you can configure the solution either way.
+If a 180 degree rotation of the front face is one move, it appears as FF,
+i.e. as one token.
+If it is two moves, it appears as F F, two successive turns of the front face.
+In either case, you should be able to apply these moves and solve the cube.
+A typical path is 60 moves, which is not optimal, but is not too bad.
+
+cube2.html implements the pocket cube, 2 by 2 by 2.
+This is a simpler puzzle.
+Each face is only 4 squares, indicated by typing 4 letters into the form.
+The solution is optimal, the shortest path back to start.
+The longest such path is 14 moves, or 11 moves
+if 180 degree rotations are considered single moves.
+
+There are many other Rubix puzzles on the market,
+but I don't have solvers for them at this time.
+We could probably build an optimal solver for the Rubix Pyramid,
+using cube2.html as a model.
+
+I got my first Rubix cube in 1978, and oh I couldn't put it down, not til I solved it.
+Took a couple of days but I got there.
+But first, I had to label it.
+I had a braille dimo writer so it was no trouble to make labels and stick them on.
+However, as I solved it again and again, with improved procedures, and as my friends played with it, the stickers wore off.
+Sometimes they even pulled the color paper off as well, so parts of the cube were just black plastic.
+This was unsustainable.
+The only recourse was to buy another cube.
+Now advance 45 years.
+What do I find at a garage sale but a Rubix cube with no colors.
+The plastic has a silver finish all the way around.
+The distinguishing factors are the sizes of the pieces.
+Some pieces are longer, wider, taller, than others.
+If you turn a face 90 degrees from start, it looks off kilter.
+It only makes a cube when solved, otherwise it looks like a jumble of plastic rectangles stuck together.
+The sighted person has almost no advantage here.
+And there's nothing to wear off, so I can play with it for years to come.
+This is the coolest Rubix variation I've come across in a while.
+It's fun, but if you want cube2.html or cube3.html to solve it,
+you have to affix braille stickers and enter the letters into the form,
+as though it were a standard cube.
+
+There is alsoa a tactile slanted cube, the "Moyu Fisher Windmill Mirror Cube",
+where the planes of motion are not parallel to the faces of the cube.
+This is a challenge, even for the experience cube solver.
+
+Read more about solving the cube at
+http://www.eklhad.net/rubik/
+

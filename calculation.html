@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title> Calculation - Solitaire Online </title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name=description content="Calculation">
+<meta name=keywords content="
+game, app, play, online,
+calculation, solitaire, strategy, cards, computer">
+    <!-- You can use Open Graph tags to customize link previews.
+    Learn more: https://developers.facebook.com/docs/sharing/webmasters -->
+        <meta property="og:url"           content="http://www.eklhad.net/calculation.html" >
+        <meta property="og:type"          content="website" >
+        <meta property="og:title"         content="Calculation - Solitaire Online" >
+        <meta property="og:description"   content="Play solitaire online - a game of strategy and skill." >
+<style>
+body {
+background-color: white;
+color: black;
+font-family: Arial,Helvetica,sans-serif;
+font-size: 1.0em;
+}
+
+tr br {
+line-height: 2;
+}
+.card {
+font-size: 12em;
+height: 0.9em;
+}
+
+.cardalt {
+}
+
+/* a table in the center */
+table.cen {
+margin-left: auto;
+margin-right: auto;
+text-align: center;
+}
+
+a:link { color: DarkRed; }
+a:visited { color: DarkRed; }
+a:hover { color: green; }
+a:active { color: green; }
+
+h1 {
+text-align: center;
+color: royalblue;
+font-size: 3.0em;
+}
+
+h2 {
+text-align: center;
+color: purple;
+font-size: 2.0em;
+}
+
+hr {
+border-style: solid;
+color: black;
+height: 2px;
+}
+
+/* centered paragraph */
+p.cen {
+text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+body { background-color: black; color: white; }
+h1 { color: white; }
+input { background-color: black; color: white; }
+input[disabled] { background-color: DarkGrey; color: grey; }
+input[type="text"] { border-color: white; border-style: solid; border-width: medium; }
+a:link, a:visited { color: yellow; }
+}
+</style>
+</head>
+<body>
+<h1> Calculation - Solitaire Online </h1>
+<noscript><p>This game requires javascript. Please enable javascript in your browser.</p></noscript>
+<div id=game hidden>
+<p>
+Welcome to Karl's calculation program, solitaire online.
+<a href=#inst>Instructions</a> are presented below.
+</p>
+<script>
+document.getElementById("game").hidden=false;
+var urlAddress = "http://www.eklhad.net/calculation.html";
+var pageName = "Calculation - Solitaire Online";
+function addToFavorites()
+{
+    if(document.all && window.external) { // ie
+        window.external.AddFavorite(urlAddress, pageName);
+    }
+    else if(window.sidebar) { // firefox
+        window.sidebar.addPanel(pageName, urlAddress, "");
+    }
+    else if(window.opera && window.print) { // opera
+        var elem = document.createElement('a');
+        elem.setAttribute('href',urlAddress);
+        elem.setAttribute('pageName',pageName);
+        elem.setAttribute('rel','sidebar');
+        elem.click(); // this.pageName=document.pageName;
+    }
+else {
+alert("Sorry, this feature doesn't work automatically in your browser - " +
+        'press ' + (navigator.userAgent.toLowerCase().indexOf('mac') != - 1 ? 'Command/Cmd' : 'CTRL') + ' + D to bookmark this page.');
+/*
+alert("Then edit the entry if you wish, so that the description reads `" +
+pageName + "'.");
+*/
+}
+}
+</script>
+
+<div id=topsec aria-live=polite>
+</div>
+<div id=adsense>
+</div>
+
+<form name=startup action=http://www.eklhad.net/cgi-bin/calc1>
+<p class=cen>
+<label>AutoComplete: 
+<select name=autoc>
+<option value=a>Off
+<option value=b selected>On
+<option value=c>On with Deck
+</select>
+</label>
+<label>Seed cards: 
+<select name=seed>
+<option value=b selected>ace 2 3 4
+<option value=r>random
+</select>
+</label>
+<br>
+<span id=stackcount aria-live=polite></span>
+<input id=stackminus onclick=stackdown() type=button value="Remove stack">
+<input id=stackplus onclick=stackup() type=button value="Add stack">
+<input type=button onclick=startGame() name=sg value="Start game">
+</form>
+<div id=gametable hidden>
+<table class=cen>
+<caption>Play piles</caption>
+<tr>
+<td id=sd0>?</td>
+<td id=sd1>?</td>
+<td id=sd2>?</td>
+<td id=sd3>?</td>
+</tr>
+<tbody>
+<tr class=card>
+<td id=sc0></td>
+<td id=sc1></td>
+<td id=sc2></td>
+<td id=sc3></td>
+</tr>
+</tbody>
+</table>
+
+<table class=cen id=stackarea>
+<caption>Stacks</caption>
+<tr><td></td></tr>
+<tr class=card><td></td></tr>
+<tr><td></td></tr>
+</table>
+</div>
+<table>
+<tr><td>
+<div id=nextcard aria-live=polite>
+</div>
+<div id=movelist>
+</div></td>
+<td class=card id=actc hidden></td>
+</tr>
+</table>
+
+<hr>
+<h2 id=inst>Instructions</h2>
+<p>
+Unlike most games of solitaire,
+this one entails considerable strategy.
+In other words, it is more skill than luck.
+I assume you are familiar with the rules for Calculation.
+If not, you can find them in a book of solitaire games or via Google,
+or you can view the
+<a href=calcrules.html>rules and tips on how to win</a>.</p>
+<!--
+<p>
+This game is copyright &copy; Karl Dahlke, 2022.
+I would be interested in turning this online game into an app for smart phones etc,
+perhaps for profit,
+but that is not in my wheelhouse.
+</p>
+-->
+
+<p>
+The standard version uses 4 stacks, but I can win most of the time with 3.
+Such a win is worth 4 points rather than 1, being 4 times as difficult.
+Restrict yourself to 3 stacks if you can, or 2 stacks for 64 points.
+
+<p>
+Through the use of cookies I will keep track of your games and report your average score.
+You receive -1 for each loss, 1 for a win using 4 stacks that ends in all kings, 4 for a win using 3 stacks, 16 for 3 stacks and kings at the end, 64 for 2 stacks, and so on geometrically.
+A game is counted after 20 moves, so don't just leave the page if things aren't going well.
+If you don't visit this site for 5 years your score will reset.
+Of course you can reset the score yourself by clearing cookies.</p>
+
+<p>The number of stacks can be changed at any time, though you can't remove a stack that is in use, or that you have used previously.
+If the game is going south, add another stack.
+You can have from 2 to 6 stacks.
+When you return to play another game, I will remember the number of stacks, along with other game configurations (see below).
+</p>
+
+<p>If you have nothing left but kings, or kings and obvious end cards, wherein the path to win is clear, I will display those moves and jump straight to the end.
+This is a time-saver, and I hope not too confusing.
+You can disable this feature by turning AutoComplete off.
+Select <strong>On with Deck</strong> to incorporate the last few cards in the deck, if the path to win is clear.
+
+<p>
+The basic version uses seed cards of ace 2 3 4;
+a more advanced player may wish to draw 4 seed cards at random.
+They will be distinct, and not kings of course.
+When you start each game
+you will have the choice: ace 2 3 4 or random.
+
+<P>
+Cards on the top of the play piles, or on the top of the stacks, are presented as emojis, i.e. the images of the playing cards.
+These look like the cards you know, making the game a bit more intuitive.
+
+<p>
+Please <a href="mailto:eklhad@gmail.com?subject=Calculation">email your feedback</a>,
+or visit my <a href=http://www.eklhad.net>home page</a>.
+<br>
+This game is <a href=http://www.edbrowse.org>edbrowse friendly</a>
+
+<script>
+var cardname = [ "king", "ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen"];
+var cardsuit = ["spades", "hearts", "diamonds", "clubs"];
+var cardart = ["a", "an", "a", "a", "a", "a", "a", "a", "an", "a", "a", "a", "a"];
+var cardaltlast = false;
+
+function cardemoji(tag, n) {
+var cardalt = false;
+if(n < 0) {
+tag.innerHTML = (cardalt ? "-" : "&#" + 0x1f0a0 + ";");
+return;
+}
+var val = n % 13, suit = Math.floor(n / 13);
+var uni = 0x1f0a0 + 16 * suit;
+uni += (val == 0 ? 14 : (val == 12 ? 13 : val));
+tag.innerHTML = (cardalt ? cardname[val] : "&#" + uni + ";");
+}
+
+var games = 0, score = 0;
+var nstacks = 4;
+const minstacks = 2, maxstacks = 6;
+var allstacks = [], sviews = [];
+var makemoves, cumoves = 0;
+var deck = [];
+var active = -1, activeval, activesuit;
+var cstart = [ ], cstartval = [];
+var cend = [ ], cendval = [ ];
+var cusu = [], kcnt;
+var stackarea = document.getElementById("stackarea");
+var stackcount = document.getElementById("stackcount");
+stackcount.innerHTML = nstacks + " stacks";
+var stackplus = document.getElementById("stackplus");
+var stackminus = document.getElementById("stackminus");
+
+
+function buildColumns() {
+var i, td;
+var rows = stackarea.rows;
+var l2 = rows[0].cells.length;
+var l = allstacks.length;
+// l should always equal l2, however,
+// at the start the table is empty, and yet there is an initial cell,
+// as required by proper html.
+// Remove that cell before we continue.
+if(!l && l2) {
+for(i=0; i<3; ++i)
+while(rows[i].cells.length) rows[i].deleteCell(0);
+}
+if(l == nstacks) return;
+if(l > nstacks) { // lop off columns
+// you shouldn't be here unless the stacks being removed are empty
+for(i=0; i<3; ++i)
+while(rows[i].cells.length > nstacks) rows[i].deleteCell(nstacks);
+allstacks.length = sviews.length = cusu.length = nstacks;
+} else {
+for(i=l; i<nstacks; ++i) {
+td = rows[0].insertCell(i);
+td.appendChild(document.createTextNode("Stack " + (i+1)));
+td = rows[1].insertCell(i);
+td.id = "sk" + i;
+cardemoji(td, -1);
+td = rows[2].insertCell(i);
+var inp = document.createElement("input");
+inp.type = "button";
+inp.value = "show stack " + (i+1);
+inp.setAttribute("onclick", "showstack(" + i + ")");
+td.appendChild(inp);
+allstacks[i] = [];
+sviews[i] = "";
+cusu[i] = 0;
+}
+}
+if(active >= 0) {
+// we did this in the middle of the game, and there is a card on the deck,
+// that could go on the stacks, so regenerate the moves.
+generateLegalMoves();
+presentMoves();
+}
+}
+
+function stackup() { ++nstacks; buildColumns();
+stackminus.disabled = false;
+if(nstacks == maxstacks) {
+stackminus.focus();
+stackplus.disabled = true;
+} else {
+stackplus.focus();
+}
+stackcount.innerHTML = nstacks + " stacks";
+}
+
+function stackdown() { --nstacks; buildColumns();
+stackplus.disabled = false;
+if(nstacks == minstacks || cusu[nstacks-1]) {
+stackplus.focus();
+stackminus.disabled = true;
+} else {
+stackminus.focus();
+}
+stackcount.innerHTML = nstacks + " stacks";
+}
+
+function gameCookie() {
+var f = document.forms.startup;
+var tag, w;
+var c = document.cookie.replace(/ +/g, "").split(';');
+for(var i=0; i<c.length; ++i) {
+var s = c[i];
+if(s.match(/^cuscore=/)) {
+s = s.replace(/^cuscore=/, "");
+s = s.split('_');
+games = parseInt(s[0]);
+score = parseInt(s[1]);
+if(s.length >= 3) {
+w = s[2], tag = f.autoc;
+if(w == 'a')  tag.options[1].selected = false, tag.options[0].selected = true;
+if(w == 'c')  tag.options[1].selected = false, tag.options[2].selected = true;
+}
+if(s.length >= 4) {
+w = s[3], tag = f.seed;
+if(w == 'r')  tag.options[0].selected = false, tag.options[1].selected = true;
+}
+if(s.length >= 5) {
+w = s[4], tag = f.alttag;
+if(w == '1')  tag.checked = true;
+switchClasses();
+}
+if(s.length >= 6) {
+w = parseInt(s[5]);
+if(w >= minstacks && w <= maxstacks) nstacks = w;
+}
+break;
+}
+}
+}
+
+gameCookie();
+buildColumns();
+
+if(games) {
+var msg = "<p>Hello again - ";
+msg += games + " games completed, score " + score +", average ";
+var avg = score / games;
+avg = avg.toString();
+avg = avg.replace(/\.(\d\d\d).*/, ".$1");
+msg += avg + ".\n";
+document.getElementById("topsec").innerHTML = msg;
+} else {
+var msg = "<p>Hello new player."
+document.getElementById("topsec").innerHTML = msg;
+}
+
+var seed, autocomplete;
+function saveScore() {
+var cardalt = false;
+var d = new Date;
+d.setYear(d.getYear()+1905);
+document.cookie = "cuscore=" + games + "_" + score +
+"_" + autocomplete +
+"_" + seed +
+"_" + (cardalt ? 1 : 0) +
+"_" + nstacks +
+"; domain=.eklhad.net; path=/; expires=" + d.toUTCString() +
+(location.protocol === "https:" ? "; secure" : "");
+}
+
+function adjust_kc(n)
+{
+if(n%13)
+kcnt = 0;
+else
+++kcnt;
+}
+
+function showstack(n)
+{
+var s = sviews[n];
+alert(s.length ? s : "empty");
+}
+
+// set up the seed cards
+function setSeed()
+{
+var i, j, n, nv;
+seed = document.forms.startup.seed.value;
+autocomplete = document.forms.startup.autoc.value;
+if(seed === "b") {
+cstart[0] = 1;
+cstart[1] = 2;
+cstart[2] = 3;
+cstart[3] = 4;
+} else {
+
+for(i = 0; i < 4; ++i) {
+while(true) {
+n = Math.floor(Math.random()*52);
+nv = n % 13;
+if(nv == 0) continue;
+for(j = 0; j < i; ++j)
+if(nv == cstart[j] % 13) break;
+if(j == i) break;
+}
+cstart[i] = n;
+}
+
+// Now put the seed cards in a friendly order;
+// ace to the left, 4 to the right, if possible.
+// This is a bubble sort; the array is only 4 long.
+var change = true;
+while(change) {
+change = false;
+for(i = 0; i < 3; ++i) {
+var v1 = cstart[i] % 13;
+var v2 = cstart[i+1] % 13;
+var ordering = [0,1,3,9,11,5,6,7,8,12,10,4,2];
+v1 = ordering[v1];
+v2 = ordering[v2];
+if(v1 <= v2) continue;
+var swap = cstart[i];
+cstart[i] = cstart[i+1];
+cstart[i+1] = swap;
+change = true;
+}
+}
+}
+
+for(i = 0; i < 4; ++i) {
+cend[i] = cstart[i];
+cstartval[i] = cendval[i] = cstart[i] % 13;
+}
+}
+
+function shuffle()
+{
+var i, j = 0;
+var d = [];
+
+for(i=0; i<52; ++i) {
+if(i == cstart[0]) continue;
+if(i == cstart[1]) continue;
+if(i == cstart[2]) continue;
+if(i == cstart[3]) continue;
+d[j] = i;
+++j;
+}
+
+deck.length = 0;
+for(var n=48; n>1; --n) {
+var r = Math.floor(Math.random()*n);
+deck.push(d[r]);
+d[r] = d[n-1];
+}
+deck.push(d[0]);
+}
+
+// switch the classes if the user switches between emoji and names.
+function switchClasses() {
+var i, top, img;
+var cardalt = false;
+if (cardalt == cardaltlast) return;
+if (cardalt) {
+let elements = document.querySelectorAll(".card");
+for (let elem of elements) {
+elem.setAttribute("class", "cardalt");
+}
+} else {
+let elements = document.querySelectorAll(".cardalt");
+for (let elem of elements) {
+elem.setAttribute("class", "card");
+}
+}
+cardaltlast = cardalt;
+
+// If we haven't even started our first game, there is nothing displayed
+// in the relevant tags, and nothing to change.
+if(!cend.length) return;
+
+// There are 3 regions affected. These could display real cards
+// or the blank card that indicates a stack is empty.
+// The play piles are easy, they are always there,
+// even if the game is over and you are ready to start a new game.
+for(i=0; i<4; ++i) {
+img = document.getElementById("sc" + i);
+cardemoji(img, cend[i]);
+}
+var img = document.getElementById("actc");
+cardemoji(img, active);
+for(i=0; i<allstacks.length; ++i) {
+top = -1;
+if(allstacks[i].length) top = allstacks[i][allstacks[i].length-1];
+img = document.getElementById("sk" + i);
+cardemoji(img, top);
+}
+}
+
+function popActive()
+{
+var img = document.getElementById("actc");
+active = -1;
+if(deck.length) {
+active = deck.pop();
+activeval = active % 13;
+activesuit = Math.floor(active / 13);
+}
+cardemoji(img, active);
+}
+
+function generateLegalMoves()
+{
+var i, j;
+
+makemoves = "";
+
+if(active >= 0) {
+for(i = 0; i < 4; ++i)
+if((cstartval[i] + cendval[i]) %13 == activeval && cendval[i])
+makemoves += "<br><input type=button onclick=astep(this.name) name=ap" + i + " value='" + cardname[activeval] + " of " + cardsuit[activesuit] + " to the " + cardname[cstartval[i]] + " pile'>\n";
+
+for(i=0; i<nstacks; ++i)
+makemoves += "<br><input type=button onclick=astep(this.name) name=as" + i + " value='" + cardname[activeval] + " of " + cardsuit[activesuit] + " to stack " + (i+1) + "'>\n";
+}
+
+for(i=0; i<nstacks; ++i) {
+var slen = allstacks[i].length;
+if(slen) {
+var top = allstacks[i][slen-1];
+var topval = top % 13;
+var topsuit = Math.floor(top / 13);
+for(j = 0; j < 4; ++j)
+if((cstartval[j] + cendval[j]) %13 == topval && cendval[j])
+makemoves += "<br><input type=button onclick=astep(this.name) name=s" + (i+1) + "p" + j + " value='" + cardname[topval] + " of " + cardsuit[topsuit] + " to the " + cardname[cstartval[j]] + " pile'>\n";
+}
+}
+}
+
+var wincount = 0;
+var winlist;
+var losev1, losev2;
+
+function endGame(msg)
+{
+// well I dont know if this could ever happen.
+if(cumoves < 20) ++games;
+saveScore();
+cumoves = 0, active = -1;
+
+msg += games + " games completed, score " + score +", average ";
+var avg = score / games;
+avg = avg.toString();
+avg = avg.replace(/\.(\d\d\d).*/, ".$1");
+msg += avg + ".\n";
+msg += "Play again if you wish.\n";
+document.getElementById("topsec").innerHTML = "<p>"+msg;
+document.getElementById("nextcard").innerHTML = "";
+document.getElementById("movelist").innerHTML = (wincount ? winlist : "");
+document.forms.startup.sg.focus();
+}
+
+// see if we are going to win, e.g. nothing left but kings.
+// Treat the rest of the deck as a fifth stack.
+function winCheck()
+{
+var i, j;
+var t, tv;
+var kc = kcnt; // current king count
+var tend = [cend[0], cend[1], cend[2], cend[3]];
+var sk = [];
+var toplay = 0;
+var debwc = false; // debug winCheck()
+winlist = "";
+
+// all piles end in king
+if(cendval[0] + cendval[1] + cendval[2] + cendval[3] == 0)
+return true;
+
+if(autocomplete === 'a')
+return false;
+if(autocomplete === 'b' && active >= 0)
+return false;
+
+// take a snapshot of the game
+for(i=0; i<nstacks; ++i) {
+sk[i] = [];
+for(j=0; j<allstacks[i].length; ++j) {
+sk[i][j] = allstacks[i][j];
+++toplay;
+}
+}
+sk[i] = [];
+for(j=0; j<deck.length; ++j)
+sk[i][j] = deck[j], ++toplay;
+if(active >= 0)
+sk[i].push(active), ++toplay;
+wincount = toplay;
+
+// we now have a snapshot of the game.
+while(true) {
+var best = -1;
+var best_i = -1;
+var cudve = false, cud_i;
+var l, j1, j2, j3;
+var guess_i = -1, guess_j;
+
+// See if we can move a king to an empty stack.
+if((l = sk[nstacks].length) && sk[nstacks][l-1]%13 == 0) {
+// king is the top card on the deck
+// Is there something below king on the deck?
+for(j=0; j<l; ++j)
+if(sk[nstacks][j]%13) break;
+if(j < l) {
+var es; // look for empty stack
+var m;
+for(es=0; es<nstacks; ++es) {
+if(!cusu[es]) continue; // don't touch this, it hasn't been used yet
+for(m=0; m<sk[es].length; ++m)
+if(sk[es][m] % 13) break;
+if(m == sk[es].length) break; // nothing but kings here
+}
+if(es < nstacks) {
+// king moves to this stack
+t = sk[nstacks].pop();
+tv = t % 13;
+sk[es].push(t);
+winlist += "<br>" + cardname[tv] + " of " + cardsuit[Math.floor(t/13)] + " from the deck to stack " + (es+1) + "\n";
+// this does not decrement the toplay count, nor does it change kc
+continue;
+}
+}
+}
+
+for(i=0; i<=nstacks; ++i) {
+l = sk[i].length;
+if(l == 0) continue; // this stack empty
+t = sk[i][l - 1];
+tv = t % 13;
+
+// which piles can take this card
+var jcount = 0;
+for(j=0; j<4; ++j)
+if((cstartval[j] + tend[j]) %13 == tv && tend[j] % 13 ) {
+++jcount;
+if(jcount == 1) j1 = j;
+if(jcount == 2) j2 = j;
+if(jcount == 3) j3 = j;
+}
+if(!jcount) continue;
+
+if(tv) {
+// We could have played something other than a king
+cudve = true;
+cud_i = i;
+// multiple ways to play something other than a king, no automatic win.
+// Unless there are two 9s on top and two ways to play 9, for example.
+var kcount = 0, numstacks = 0;
+var understack;
+for(var ii = 0; ii<=nstacks; ++ii) {
+var ll = sk[ii].length;
+var jj;
+for(jj=ll-1; jj>=0; --jj) {
+if(sk[ii][jj] % 13 != tv) break;
+++kcount;
+}
+if(jj < ll - 1) {
+for(; jj>=0; --jj) {
+if(sk[ii][jj] % 13 == 0) continue;
+++numstacks;
+understack = ii;
+break;
+}
+}
+}
+// kcount is at least 1
+
+if(debwc)  alert("jk " + tv + " " + jcount + " " + kcount);
+
+if(jcount <= 3 && jcount - kcount == 1) {
+// this would normally be a give-up situation, but let's see
+// if one of the piles is an end card.
+if(tv + cstartval[j2] == 13) {
+var m = j1; j1 = j2; j2 = m;
+}
+if(jcount == 3 && tv + cstartval[j3] == 13) {
+var m = j1; j1 = j3; j3 = m;
+}
+if(tv + cstartval[j1] == 13) {
+// take j2, unless the stack has tv king tv, then take j1
+if(l >= 3 && sk[i][l-2]%13 == 0) {
+var ll = l - 3;
+while(ll >= 0 && sk[i][ll]%13 == 0) --ll;
+if(ll >= 0 && sk[i][ll]%13 == tv) j2 = j1;
+}
+if(debwc)  alert("win1");
+best = 10;
+break;
+}
+
+// if one play is followed by the next card down on the stack then take it
+if(l >= 2 && (tv + cstartval[j1] - sk[i][l-2]) % 13 == 0)
+j2 = j1;
+if(jcount == 3 && l >= 2 && (tv + cstartval[j3] - sk[i][l-2]) % 13 == 0)
+j2 = j3;
+if(l >= 2 && (tv + cstartval[j2] - sk[i][l-2]) % 13 == 0) {
+if(debwc)  alert("win2");
+best = 10;
+break;
+}
+}
+
+if(kcount == 1 && jcount > 1 && jcount <= 3 && l > jcount && sk[i][l-2]%13 != tv) {
+var m = 1;
+for(var jj=0; jj<l-2; ++jj)
+if(sk[i][jj] % 13 == tv) ++m;
+if(m == jcount) {
+for(m=l-2; m>=0; --m) {
+if(sk[i][m]%13 == tv) break;
+if((tv + cstartval[j1] - sk[i][m]) % 13 == 0)
+j2 = j1;
+if(jcount == 3 && (tv + cstartval[j3] - sk[i][m]) % 13 == 0)
+j2 = j3;
+if((tv + cstartval[j2] - sk[i][m]) % 13 == 0)
+break;
+}
+if(sk[i][m]%13 != tv) {
+if(debwc)  alert("win3");
+best = 10;
+break;
+}
+if(jcount == 2 && sk[i][l-3]%13 == tv) {
+for(m=0; m<4; ++m) {
+if(m == j1 || m == j2) continue;
+if((cstartval[m] + tend[m] - sk[i][l-2]) % 13 == 0 && tend[m] % 13)
+break;
+}
+if(m < 4) {
+if(debwc)  alert("win4");
+best = 10;
+break;
+}
+}
+// there may be other things we can do here.
+}
+}
+
+if(jcount == 1 && kcount > 1 && l >= 2 &&
+(tend[j1] + cstartval[j1]*2 - sk[i][l-2]) % 13 == 0) {
+j2 = j1;
+if(debwc)  alert("win5");
+best = 10;
+break;
+}
+
+if(jcount > kcount && numstacks == 1) {
+// set up for a guess, if there's nothing better.
+guess_i = i, guess_j = j2;
+}
+
+if(jcount > kcount ||
+jcount < kcount && numstacks > 1)
+continue;
+if(jcount < kcount && numstacks == 1 && i != understack)
+continue;
+}
+
+// either one way to play a nonking or at least one way to play a king
+var b = 0;
+if(tv) {
+b = 8;
+} else {
+// better to play a king with a nonking below it.
+for(j=l-2; j>=0; --j)
+if(sk[i][j] % 13) break;
+if(j >= 0) b = 4 - (l-1-j);
+}
+
+if(b > best) best = b, best_i = i;
+// can't do better than 8
+if(b == 8) break;
+}
+
+if(best < 0 && guess_i >= 0) {
+if(debwc)  alert("guess");
+best = 10, i = guess_i;
+}
+
+if(best == 10) {
+// move already made
+sk[i].pop();
+tend[j2] = t;
+winlist += "<br>" + cardname[tv] + " of " + cardsuit[Math.floor(t/13)];
+if(i == nstacks) winlist += " from the deck";
+else winlist += " from stack " + (i+1);
+winlist += " to the " + cardname[cstartval[j2]] + " pile\n";
+kc = 0;
+--toplay;
+continue;
+}
+
+// I have in the past played a king when another card could have been played
+// but not sure which pile, and playing the king ruined kings at the end,
+// so now I don't autoplay a king off the floor. It's better
+// to go back and play the other card instead of just giving up.
+if(best < 8 && cudve)
+best = 8, best_i = cud_i;
+
+if(best_i < 0) return false;
+
+// ok make the best move.
+i = best_i;
+t = sk[i].pop();
+tv = t % 13;
+
+// I won't play a king if there are four kings yet to play and other cards to,
+// cause that ruins kings at the end, and maybe I screwed up earlier.
+if(!tv && toplay > 4) {
+// count kings remaining, but remember one has already been popped.
+var n = 0;
+for(var ii=0; ii<=nstacks; ++ii)
+for(var jj=0; jj<sk[ii].length; ++jj)
+if(sk[ii][jj]%13 == 0) ++n;
+if(n == 3) {
+// If king buries something else on a stack then that ship has sailed.
+n = false;
+for(var ii=0; ii<4; ++ii)
+for(var jj=0; jj<sk[ii].length-1; ++jj)
+if(sk[ii][jj]%13 && sk[ii][jj+1]%13 == 0) n = true;
+if(i < 4 && sk[i].length && sk[i][sk[i].length-1] % 13) n = true;
+if(!n) return false;
+}
+}
+
+// where to play
+for(j=0; j<4; ++j)
+if((cstartval[j] + tend[j]) %13 == tv && tend[j] % 13) {
+tend[j] = t;
+winlist += "<br>" + cardname[tv] + " of " + cardsuit[Math.floor(t/13)];
+if(i == nstacks) winlist += " from the deck";
+else winlist += " from stack " + (i+1);
+winlist += " to the " + cardname[cstartval[j]] + " pile\n";
+if(tv) kc = 0; else ++kc;
+break;
+}
+
+if(--toplay) continue;
+kcnt = kc;
+return true;
+}
+}
+
+function loseCheck()
+{
+var i, j;
+var v2 = activeval;
+var v0, v1, vj;
+var found1, found2;
+
+/* don't think we need this check.
+if(onpiles[v2] + onstacks[v2] < 4)
+return;
+*/
+
+for(v1=1; v1<13; ++v1) {
+if(v1 == v2) continue;
+if(onstacks[v1] == 0) continue;
+if(onpiles[v1] + onstacks[v1] < 4) continue;
+
+// Crawl up the stack; see if each v1 has a v2 above it.
+for(i=0; i<nstacks; ++i) {
+found1 = found2 = false;
+for(j = 0; j<allstacks[i].length; ++j) {
+vj = allstacks[i][j] % 13;
+if(vj == v1) found1 = true, found2 = false;
+if(vj == v2) found2 = true;
+}
+if(found1 && !found2) break;
+}
+if(found1 && !found2) continue;
+
+// ok, v2 buries v1, see if v1 must be played first.
+//alert(v2 + " buries " + v1);
+
+var badcount = 0;
+for(i=0; i<4; ++i) {
+v0 = vj = cstartval[i];
+found1 = false;
+var donepile = false;
+while(true) {
+if(donepile) {
+if(vj == v1) found1 = true;
+if(vj == v2 && found1) ++badcount;
+}
+if(vj == cendval[i]) donepile = true;
+if(!vj) break;
+vj = (vj + v0) % 13;
+}
+}
+// Wherever you play the next v2 you have to play v1 first, but you can't.
+if(badcount + onpiles[v2] == 4) {
+losev1 = v1, losev2 = v2;
+return;
+}
+}
+}
+
+function astep(g)
+{
+var msg;
+
+++cumoves;
+if(cumoves == 20) { ++games; saveScore(); }
+
+losev1 = losev2 = 0;
+
+if(g.match(/^a/)) {
+if(g.match(/^ap/)) {
+g = g.replace(/^ap/, "");
+g = parseInt(g);
+cend[g] = active;
+cendval[g] = activeval;
+onpiles[activeval]++;
+var img = document.getElementById("sc" + g);
+cardemoji(img, active);
+adjust_kc(active);
+} else {
+g = g.replace(/^as/, "");
+g = parseInt(g);
+allstacks[g].push(active);
+onstacks[activeval]++;
+var img = document.getElementById("sk" + g);
+cardemoji(img, active);
+// not playing a king
+kcnt = 0;
+cusu[g] = 1;
+if(g == nstacks-1) stackminus.disabled = true;
+if(sviews[g].length) sviews[g] += " ";
+sviews[g] += cardname[activeval];
+loseCheck();
+}
+popActive();
+} else {
+// stack number and play pile
+var sn = parseInt(g.substr(1,1));
+--sn;
+var pp = parseInt(g.substr(3,1));
+var thiscard = allstacks[sn].pop();
+var thisval = thiscard % 13;
+sviews[sn] = sviews[sn].replace(/ *\w+$/, "");
+cend[pp] = thiscard;
+cendval[pp] = thisval;
+onpiles[thisval]++;
+onstacks[thisval]--;
+var img = document.getElementById("sc" + pp);
+cardemoji(img, thiscard);
+var top = -1;
+if(allstacks[sn].length) top = allstacks[sn][allstacks[sn].length-1];
+img = document.getElementById("sk" + sn);
+cardemoji(img, top);
+adjust_kc(thiscard);
+}
+
+if(winCheck()) {
+makemoves = "";
+} else {
+wincount = 0;
+winlist = "";
+generateLegalMoves();
+}
+
+// if there are no legal moves to make then the game is over.
+if(makemoves.length == 0 || losev1) {
+if(!wincount) {
+if(cendval[0] + cendval[1] + cendval[2] + cendval[3]) {
+--score;
+if(losev1) {
+msg = "Oops, you cannot win the game. You must play " + cardname[losev1] + " before " + cardname[losev2] + ", but " + cardname[losev2] + " buries " + cardname[losev1] + " in your stacks.";
+} else {
+msg = "Oops, there are no more moves to make. You have lost the game.";
+}
+msg += " Sorry, but I must deduct one point from your score.\n";
+endGame(msg);
+return;
+}
+}
+
+// we have a winner!
+// adjust the score.
+var stacksused = 0;
+for(var i=0; i<nstacks; ++i) stacksused += cusu[i];
+msg = "";
+if(wincount) msg = "I have made " + wincount + " moves on your behalf.\n";
+msg += "You have won the game using " + stacksused+ " stacks";
+if(kcnt == 4) msg += " and kings at the end";
+msg += ".\n";
+var points = 0;
+if(stacksused == 4) {
+if(kcnt == 4) points = 1;
+}
+if(stacksused == 3) {
+points = 4;
+if(kcnt == 4) points = 16;
+}
+if(stacksused == 2) {
+points = 64;
+if(kcnt == 4) points = 256;
+}
+if(stacksused <= 1) {
+points = 1024;
+if(kcnt == 4) points = 4096;
+}
+if(points == 0)
+msg += "This is break even; you don't get any points but you don't lose any points either.\n";
+if(points == 1)
+msg += "This is worth 1 point.\n";
+if(points > 1)
+msg += "This is worth " + points + " points.\n";
+score += points;
+endGame(msg);
+return;
+}
+
+presentMoves();
+}
+
+function presentMoves() {
+var msg;
+if(active >= 0)
+msg = "The next card is " + cardart[activeval] + " " + cardname[activeval] + " of " + cardsuit[activesuit] + ".\n";
+else
+msg = "There are no more cards in the deck.\n";
+if(makemoves.match(/\n/g).length == 1)
+msg += "Please select the 1 possible move.\n";
+else
+msg += "Please select from " + makemoves.match(/\n/g).length + " possible moves.\n";
+document.getElementById("nextcard").innerHTML = msg;
+// Show the new buttons for the moves.
+msg =  "<form name=move" + cumoves + " action=/cgi-bin/noaction>\n";
+msg += makemoves;
+msg += "</form>\n";
+document.getElementById("movelist").innerHTML = msg;
+document.getElementById("movelist").firstChild.elements[0].focus();
+}
+
+var onpiles = [], onstacks = [];
+function startGame()
+{
+var img;
+var i, j;
+
+document.getElementById("gametable").hidden=false;
+document.getElementById("actc").hidden=false;
+if(cumoves) {
+// trying to duck out of a game you're losing.
+if(!confirm("Game in progress. Do you want to resign and start a new game?"))
+return;
+if(cumoves < 20) ++games;
+--score;
+saveScore();
+cumoves = 0, active = -1;
+}
+
+document.getElementById("topsec").innerHTML = "Game in progress.";
+
+setSeed();
+shuffle();
+popActive();
+
+for(i=0; i<4; ++i) {
+img = document.getElementById("sc" + i);
+cardemoji(img, cstart[i]);
+document.getElementById("sd" + i).innerHTML = cardname[cstartval[i]];
+}
+for(i=0; i<nstacks; ++i) {
+img = document.getElementById("sk" + i);
+cardemoji(img, -1);
+allstacks[i] = [];
+sviews[i] = "";
+cusu[i] = 0;
+}
+kcnt = 0;
+
+stackminus.disabled = (nstacks == minstacks);
+stackplus.disabled = (nstacks == maxstacks);
+
+for(i=0; i<13; ++i)
+onpiles[i] = onstacks[i] = 0;
+for(i=0; i<4; ++i)
+onpiles[cstartval[i]] = 1;
+
+generateLegalMoves();
+
+msg = "The first card is " + cardart[activeval] + " " + cardname[activeval] + " of " + cardsuit[activesuit] + ".\n";
+msg += "Select from " + makemoves.match(/\n/g).length + " possible moves and off you go.\n";
+document.getElementById("nextcard").innerHTML = msg;
+
+// Show the new buttons for the moves.
+msg = 
+"<form name=move" + cumoves + " action=/cgi-bin/noaction>\n";
+msg += makemoves;
+msg += "</form>\n";
+document.getElementById("movelist").innerHTML = msg;
+document.getElementById("movelist").firstChild.elements[0].focus();
+}
+</script>
+</div>
+</body>
+</html>
