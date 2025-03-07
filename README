@@ -1,5 +1,5 @@
 This project contains popular games, made accessible to blind people.
-Written by Karl Dahlke and David Apps.
+Written by Karl Dahlke.
 
 These games are stand-alone html + javascript files, and can be run by any
 browser, but most notably, by edbrowse.
@@ -27,7 +27,7 @@ and the 6 letter words are in the word6list [] array.
 Thus you can play wordle using 5 or 6 letter words.
 A toggle lets you choose between the two.
 
-Again, cookies will remember how many you got right and your ongoing score.
+Cookies will remember how many you got right and your ongoing score.
 I also remember the words you have seen, so they are not presented again.
 If I did not do this, you are likely to see your first duplicate in sqrt(n)
 trials, which is about 75 games.
@@ -64,7 +64,7 @@ Then the game itself is in calculation.html.
 Click on <instructions> to jump to the instructions on the main page.
 When you are ready, click on <Start Game>.
 The first card is presented, thence you can click on one of the possible moves.
-I will then pull another card off the top of the deck, and you can select
+I will then pull another card off the deck, and you can select
 your next move, and so on.
 
 You can review a stack at any time by <Show Stack 1> etc.
@@ -121,7 +121,6 @@ But first, I had to label it.
 I had a braille dimo writer so it was no trouble to make labels and stick them on.
 However, as I solved it again and again, with improved procedures, and as my friends played with it, the stickers wore off.
 Sometimes they even pulled the color paper off as well, so parts of the cube were just black plastic.
-This was unsustainable.
 The only recourse was to buy another cube.
 Now advance 45 years.
 What do I find at a garage sale but a Rubix cube with no colors.
