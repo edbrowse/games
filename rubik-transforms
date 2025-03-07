@@ -1,0 +1,81 @@
+A human solves the cube quite differently from a computer.
+Here are some handy procedures and transforms.
+A transform is a sequence of moves that alters 2 or 3 pieces
+but leaves the remaining pieces undisturbed.
+
+Standard:
+Flip the top side pieces up to the top level, oriented correctly.
+Turn down a face grab a corner and pull it up oriented.
+Do this for 3 corners.
+Using the fourth corner not yet set, turn down and pull up 3 middle side pieces oriented.
+Arrange the fourth corner and side to be together and aligned.
+Turn down and pull them up completing the top two layers.
+Flip over so bottom layer becomes top, so you can see it.
+Number corners 1 through 4 clockwise, and assume 3 and 4 must swap:
+RTrftFRtr then TT
+If 1 and 4 must swap:
+t then RTrfTTFRtr
+Equivalently if 1 and 2 must swap and 3 and 4 must swap:
+RTrfTTFRtr
+Use 6 move transform and its inverse rBRFBf FbfrbR
+to change the orientation of 2 of the 4 corners.
+Repeat until all corners are oriented.
+If you need to spin 1 2 and 4 clockwise, more efficient:
+RTrTRTTr then TT
+If you need to spin 1 2 and 3 counterclockwise:
+ltLtlTTL then TT
+If front and left side must flip, leaving back alone:
+RFLRRTbFFtBlfr
+If front and right side must flip, leaving back alone:
+RFLFFtBRRTblfr
+If left and right side must flip, leaving back alone:
+frTFlRTTLrFtRF
+To permute front right and back sides:
+RRbFFlRTTLrBRR
+
+Pocket:
+Flip the top side pieces up to the top level, oriented correctly.
+Flip over so bottom layer becomes top, so you can see it.
+Number corners 1 through 4 clockwise, and assume 3 and 4 must swap.
+RTrftFRtr then TT
+If 1 and 4 must swap:
+t then RTrfTTFRtr
+Use 6 move transform and its inverse rBRFBf FbfrbR
+to change the orientation of 2 of the 4 corners.
+Repeat until all corners are oriented.
+If you need to spin 1 2 and 4 clockwise:
+RTrTRTTr then TT
+If you need to spin 1 2 and 3 counterclockwise:
+ltLtlTTL then TT
+
+Slanted:
+Hold with large layer on top and edge toward you, 45 degrees off from the standard cube.
+Flip up 3 of the 4 top sides oriented correctly.
+Move top around and spin sides so that all centers are oriented.
+Keep the last top side on the bottom out of the way,
+spin the last center, move the side piece around below it,
+flip up, so all top sides are in place like a plus sign, and all centers are oriented.
+Turn down a face grab a corner and pull it up oriented.
+Do this for 3 corners.
+Using the fourth corner not yet set, turn down and pull up 3 middle side pieces oriented.
+Arrange the fourth corner and side to be together and aligned.
+Turn down and pull them up completing the top two layers.
+Flip over so bottom layer becomes top, so you can see it.
+All corners are the same so already in position.
+Use 6 move transform and its inverse rBRFBf FbfrbR
+to change the orientation of 2 of the 4 corners.
+Repeat until all corners are oriented.
+If you need to spin 1 2 and 4 clockwise:
+RTrTRTTr then TT
+If you need to spin 1 2 and 3 counterclockwise:
+ltLtlTTL then TT
+If front and left side must flip, leaving back alone:
+RFLRRTbFFtBlfr
+If front and right side must flip, leaving back alone:
+RFLFFtBRRTblfr
+If left and right side must flip, leaving back alone:
+frTFlRTTLrFtRF
+Flip back over and look at the centers.
+If front center must flip:
+RRbFFlRTTLrBRR.
+
