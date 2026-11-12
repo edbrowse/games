@@ -433,8 +433,8 @@ void placeBattle()
 // symmetry; put carrier horizontal and in the upper left quadrant
 void placeCarrier()
 {
-    for(int x = 1; x <= top/2; ++x)
-        for(int y = 1; y <= top/2 - 2; ++y) {
+    for(int x = 1; x <= (top+1)/2; ++x)
+        for(int y = 1; y <= (top+1)/2 - 2; ++y) {
         if(foot) printf("carrier %d,%d\n", x, y);
         b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = b[x][y+4] = 1;
         placeBattle();
@@ -831,4 +831,37 @@ B2 starting sub or battle doesn't work.
 That completes Carrier starting at C2.
 
 The score is 38 out of 38.
+*********************************************************************/
+
+/*********************************************************************
+t6 uses a 6 by 6 board, t8 uses an 8 by 8 board.
+All even numbers, as those are central to my assumptions.
+However, the program could be tweaked for an odd board.
+I proved all rotations and reflections of an arrangement are distinct,
+using the four quadrants, and the odd number of holes in the carrier;
+but it's easy to extend this to odd boards.
+Spin the board around so that the carrier is horizontal and more than half is in the upper left quadrant,
+where each quadrant includes the midlines.
+If the carrier straddles the midline, find the battleship,
+and reflect the board if necessary so the battleship is on the left.
+If the battleship is on the midline, apply the same
+criterion to the cruiser, the sub, and finally the pt.
+They can't all be on the midline, and thence we have established
+an arrangement in standard form.
+This would take a bit of programming inside the various placeBoat() routines,
+but not rocket science.
+After that, I think it likely that the program would run as is.
+
+Footprints can have more symmetry on an off board.
+Even a 5 by 5 board.
+It's possible to arrange the boats like this.
+
+10001
+10001
+11011
+11011
+11111
+
+You may want to count these symmetries, the way I count
+diagonal symmetries today.
 *********************************************************************/
