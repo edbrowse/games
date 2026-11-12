@@ -140,9 +140,6 @@ long long cnt_foot = 0; // count footprints
 long long cnt_foot_sym = 0;
 static int top = 10;
 char unroll = 1, foot, fix_pt;
-const char holes[4] = {5, 4, 3, 2};
-char avail[4];
-char expect;
 char *bk = b[0];
 
 void printBoard()
@@ -169,15 +166,19 @@ done:
     return 0;
 }
 
-int k;
-void compute_k()
-    {
+int compute_k()
+{
+    static const char holes[4] = {5, 4, 3, 2};
+    char avail[4];
+    char expect = 17;
     int lev = -1;
     int n, h, h1, h2, l;
     char *p = bk + 17;
     struct frame { char *p; int n, h1, h2; } stack[8];
     struct frame *sf = stack - 1;
-    k = 0;
+    int k = 0;
+    avail[0] = avail[1] = avail[3] = 1, avail[2] = 2;
+    if(fix_pt) expect = 15, avail[3] = 0;
 
     push:
     ++lev, ++sf;
@@ -246,7 +247,7 @@ void compute_k()
     goto push;
 
     pop:
-    if(--lev < 0) return;
+    if(--lev < 0) return 2*k;
     --sf;
     p = sf->p, n = sf->n, h1 = sf->h1, h2 = sf->h2;
     h = holes[n/2];
@@ -297,12 +298,8 @@ void placePT_standard()
                         b[x+1][y+2] && !b[x+2][y+2] && !b[x+1][y+3]))
                             fix_pt = 1;
                     }
-                    avail[0] = avail[1] = avail[3] = 1, avail[2] = 2;
-                    expect = 17;
-                    if(fix_pt) expect = 15, avail[3] = 0;
-                    else bk[16*x+y] = bk[16*x+y+1] = 1;
-                    compute_k();
-                    k *= 2;
+                    if(!fix_pt) bk[16*x+y] = bk[16*x+y+1] = 1;
+                    int k = compute_k();
 // we have to put pt on the board to determine symmetry
                     b[x][y] = b[x][y+1] = 1;
                     char sym = ((b[y][x]&b[y+1][x] || b[top+1-y][top+1-x]&b[top+1-(y+1)][top+1-x]) && diagsym());
@@ -333,12 +330,8 @@ void placePT_standard()
                         b[x+2][y+1] && !b[x+2][y+2] && !b[x+3][y+1]))
                             fix_pt = 1;
                     }
-                    avail[0] = avail[1] = avail[3] = 1, avail[2] = 2;
-                    expect = 17;
-                    if(fix_pt) expect = 15, avail[3] = 0;
-                    else bk[16*x+y] = bk[16*x+16+y] = 1;
-                    compute_k();
-                    k *= 2;
+                    if(!fix_pt) bk[16*x+y] = bk[16*x+16+y] = 1;
+                    int k = compute_k();
                     b[x][y] = b[x+1][y] = 1;
                     char sym = ((b[y][x]&b[y][x+1] || b[top+1-y][top+1-x]&b[top+1-y][top+1-(x+1)]) && diagsym());
                     int add = 8*lcm/k;
@@ -464,12 +457,10 @@ void testBoard()
         }
     }
     if(l < 17) { puts("not enough holes are marked"); exit(1); }
-    avail[0] = avail[1] = avail[3] = 1, avail[2] = 2;
-    expect = 17;
 // this doesn't benefit from our fix_pt logic, nor does it test that logic,
 // but should still give the right answer.
-    compute_k();
-    k *= 2;
+    fix_pt = 0;
+    int k = compute_k();
     printf("k=%d\n", k);
     if(diagsym()) puts("symmetric");
     exit(0);
@@ -518,4 +509,326 @@ All I have to do is count the diagonal symmetric footprints as I go,
 which is part of the f option.
 Apply the formula and we are there.
 (13659009420 + 0 + 0 + 0 + 0 + 0 + 3380) / 8 = 1707376600
+*********************************************************************/
+
+/*********************************************************************
+The software is complex and subtle, can we validate it to some extent?
+Run with ft6, which restricts to a 6 by 6 board.
+
+6687136 arrangements
+2575207 footprints error 45945896
+152 symmetric error 0
+
+There are 38 symmetric footprints, up to rotations.
+Let's try to confirm that by hand. It should be manageable.
+
+Put the carrier entirely above the diagonal, A2 through A6.
+This gives an imbalance of 5.
+At least one ship touches the diagonal.
+A1 is a candidate for that.
+Put battle in A1.
+If two ships are below in column 1, we can't reflect this picture in the upper right.
+Thus pt is below and we are in balance.
+The sisters can't touch the diagonal; that doesn't work.
+They are off diagonal and on either side, in any of 6 positions. @6
+
+111111
+100001
+100001
+100001
+100000
+111100
+
+Put pt in A1.
+Battle could fill in below, giving the same situation, and the same footprints.
+If battle is in Row C then sub is below and we can't complete the picture.
+Let sub point down, then something has to fill in F1.
+If has to be battle, with cruiser on the right. Seen before.
+If sub is across in Row C then Cruiser is below.
+Battle has to fill in B3 and this doesn't work.
+
+Put sub in A1.
+The only way to finish is pt below sub, battle in row F, and cruiser on the right, which we saw before.
+
+Now A1 has to be empty.
+Someone has to be in B1.
+If battle runs down column 1, we still need to fill in F1.
+Its counterpart is in column 6, and the last ship is on the diagonal, and that can't balance.
+Let battle run across in row B.
+Somebody is vertical in column 1.
+This won't work.
+
+Put sub in B1 pointing down.
+If 2 ships fill in below then the last ship can't make up for that on the right.
+pt is below, and the tail of battle has to be on the diagonal. @4
+
+011111
+100010
+100010
+100010
+111110
+100000
+
+Let sub run across in row B.
+Someone has to be vertical in column 1. Try battle.
+Someone is in C2.
+If it is horizontal it touches the diagonal, and the last ship is also on the diagonal,
+and that could work with cruiser and pt. @1
+
+011111
+111000
+111100
+101100
+100000
+100000
+
+Or cruiser could run down column 2 with pt in row B, seen before.
+
+We finished battle in column 1, so something in column 1 is horizontal.
+If it is in row F, we still need something in C2, and there are no ships left for the right side.
+Put the cruiser in F1 pointing up,
+and we can make this work with battle in row C and pt in row D,
+but we've seen this before.
+Put pt in F1, with battle in row C and cruiser in row D, no good.
+
+Finally put pt in B1.
+Let it run across, with battle below. This is in balance.
+The sisters fill in. @6
+
+011111
+110000
+100001
+100001
+100001
+101110
+
+Without battle, something in column 1 is horizontal.
+It could be in row F, battle, with cruiser on the right.
+Covered in the previous paragraph.
+That's the only one that works, so let pt point down.
+Somebody has to be vertical, so let it be sub.
+This is the same situation we saw earlier.
+That finishes carrier off diagonal.
+We've got 17 out of 38.
+
+Put the tail of the carrier on the main diagonal, on A1 or B2.
+Assume no other ships are on the diagonal.
+One side has +4 and we have to make up for that.
+If the sisters are opposite, then we are left with battle and pt,
+and that won't make a net gain of 4.
+One way to balance is battle in column 6, and sub and pt down column 1, and cruiser in row F.
+We've seen this pattern before.
+Another way has the carrier in row B. @1
+
+001111
+011111
+110000
+110000
+110000
+110000
+
+With that finished, 2 other ships, besides the carrier,
+must touch the diagonal.
+If battle is wholly in the upper right, we have 8 squares to make up,
+but only 6 squares can be below the diagonal.
+If sub is in the upper right, we have 7 to make up, and the other three ships are on or below the diagonal.
+The tail of one is on and its reflection is all or part of the sub.
+The tail of another is on and its reflection is all or part of the sub.
+The sub can't cover both these reflections.
+If a ship is wholly above the diagonal it is the pt.
+
+If a ship is in A6, above the diagonal, it has to be the pt.
+Or if the carrier is in row B and anyone is at or above it has to be the pt.
+That's an imbalance of 6 squares, and we have 10 to play with, and 2 are on the diagonal.
+Just one pokes across the diagonal and it is nowhere near the pt.
+For proper symmetry, we need another pt in column 1, and we don't have one.
+There is then no ship to the right of the carrier or above the carrier.
+
+Put pt in A1 A2.
+Something goes down from B1, and some ship is in A3, which we just showed was impossible.
+
+With carrier in row B, put some ship in A1 going down.
+This covers B1, and something has to cover A2, which we just ruled out.
+
+Put a ship in A1 running across. It is not the pt.
+Another ship is in B1 going down.
+Only two ships remain, and they must fill in column 2 and touch the diagonal. @1
+
+111100
+111111
+111000
+110000
+010000
+010000
+
+If carrier is in row B, there is nothing above it and nothing in column 1.
+It now looks like a 5 by 5 grid.
+
+Put battle below the tail of the carrier, which brings the count in balance.
+There is one workable arrangement of sub cruiser pt across the diagonal.
+It looks like a square with a notch taken out of it.
+The notch can be upper left or lower right, and the square can move up or down the diagonal. @10
+
+111110
+100000
+100000
+100011
+100111
+000111
+
+We can't line up all 4 ships below the tail of the carrier;
+something has to be vertical and something horizontal.
+Let battle run horizontal just below carrier.
+We need 3 more below the first square of battle and 2 more below the second square of battle,
+and one on the diagonal.
+This can be done but it is the previous pattern.
+
+Put sub vertical below the tail of the carrier.
+Someone is below that, plus two more ships on the diagonal.
+That can't work, so let sub run across.
+That can't work either, so turn to pt.
+We still want two more ships on the diagonal so pt vertical doesn't work.
+Make it horizontal.
+Sub runs below that and leaves battle and cruiser to make a corner on the diagonal. @4
+
+111110
+110000
+101111
+101000
+101000
+001000
+
+That completes tail of carrier on the diagonal.
+
+Put carrier in row B, whence it starts at B1.
+Something is in A2, a ship in the A row.
+Let it start in A2.
+Let it be at least a sub.
+We need to fill C and D 1 and 2, with none or two more ships on the diagonal.
+There is one way, if sub and pt are both in row A. @1
+
+011111
+111110
+110000
+110000
+110000
+100000
+
+Next put pt in A2 A3.
+Someone runs across C, to fill in C1 C2, but we still need D2 and E2, and something else on the diagonal.
+That won't work, so let the ship in row A start in A1.
+If it is battle, we need C and D 1 and 2, and E2 and something else on the diagonal.
+Sub in row A doesn't work out any better.
+Try pt, which balances the tail of the carrier.
+If another ship is in A next to the pt,
+we have to fill in columns 1 and 2 plus something on the diagonal, and only two ships remain.
+Let battle run down column 2, but it is longer than we need, and causes trouble.
+Let sub fill in column 2, creating a balance.
+Battle and cruiser then make a corner. @2
+
+110000
+111110
+010001
+010001
+010001
+001111
+
+That's it for carrier in row B.
+
+The carrier has to be in row C.
+Start it at C1.
+Somebody fills in A3 B3 D3 E3.
+Let two ships run across A and B.
+Let one start at A1, whence the other starts at B1.
+If one is pt we need another to complete column 3.
+That leaves one ship to balance below, which doesn't work.
+The two ships run to at least column 3.
+This would work if we were 7 by 7.
+Battle going down column 2 and pt in row C.
+But we're not, so this is a dead end.
+
+Let one ship start at A2 and the other at B1.
+If any ship goes past column 3, we need to fill in D3, E3, (D1 or D2), and one more square on the diagonal.
+This can't work, so let the ships above be pt and sub.
+We still can't complete below.
+
+Let the ships start at A3 and B2.
+We have to fill in D1 as well as D3.
+This doesn't work.
+
+Let both ships start in column 3.
+We need two more ships filling out columns 1 and 2, and something in D3 E3, and that's not workable.
+
+Let pt fill A3 and B3.
+The other three ships can't fill and balance below.
+
+Let carrier start at C2. This is the last case.
+Let a ship start at A1 across,
+and let another ship start at B2 or B3, since something has to cover B3.
+Another ship runs down from B1.
+If the ship in row B reaches B4, I need the last ship to cover D2 D3 E3 F3, which it can't.
+Thus B2 is pt, B1 is sub, A1 is battle, and D3 down is cruiser. @1
+
+111100
+111000
+111111
+101000
+001000
+001000
+
+Let two ships start at A1 and B1.
+The ship in row B can't be pt.
+If the ship in row A isn't pt, we need a ship going down from C1.
+Cruiser must then cover D3 E3 F3.
+This is the same picture as above.
+So let pt fill A1.
+The B ship is sub or battle, but either way we can't complete the picture below.
+That completes a ship in A1 across.
+
+Let a ship run from A1 down.
+We need something for A2 and something for B3, two more ships.
+That leaves one ship for below, which doesn't work.
+so there is nothing in A1.
+
+Put something in A2 across, then something in B1 across, since we must fill B1.
+Since we have to fill B3 anyways, B1 cant be pt.
+Something fills C1 going down.
+We need something for column 3 and for the diagonal, and we are out of ships.
+Put something in B1 going down, but we still have to fill B3 across.
+One ship left for D2 and column 3.
+That finishes a ship in A2.
+
+If A2 goes down it is pt.
+Something longer is in B1 down, and that means something is in A3 across.
+These have to be battle and sub respectively.
+But we have to fill B3 and D3, and it falls apart.
+That finishes anything in A2.
+
+If a ship runs at A3 across, I still need something for B3.
+If this extends to B4, I need to cover C1 D2 D3 E3 F3, which can't be done with two ships.
+The ship in row B is pt, in B2 B3.
+The rest can't be balanced.
+
+Put the pt in A3 B3.
+Something runs down from C1, and that puts another ship across at A4.
+These are battle and sub respectively, and cruiser completes the picture. @1
+
+001111
+001000
+111111
+101000
+101000
+101000
+
+Something has to be in B3 across.
+Say it starts in B3.
+We must cover D2 D3 E3 F3.
+We can but there is a ship left over.
+Start the ship in B2, which means another ship has to touch diagonal.
+Let B2 be pt, leaving battle sub cruiser.
+This can work but gives a picture we've seen before.
+B2 starting sub or battle doesn't work.
+That completes Carrier starting at C2.
+
+The score is 38 out of 38.
 *********************************************************************/
