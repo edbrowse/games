@@ -143,3 +143,15 @@ This is a challenge, even for the experience cube solver.
 Read more about solving the cube at
 http://www.eklhad.net/rubik/
 
+--------------------
+
+bship.c is not a game, but it performs calculations
+relative to the game of Battleship.
+It computes the number of arrangements of boats on the board, or the number
+of footprints on the grid, without regard to which ships fill which holes,
+the latter being a much more difficult problem.
+It's a fun exercise in math and computer programming.
+Compile with the -O option; it helps.
+Possible arguments are f (footprints), b <file (test a board),
+t6 (6 by 6 grid), and t8 (8 by 8 grid).
+
