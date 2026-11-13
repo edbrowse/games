@@ -930,3 +930,63 @@ here are the 5 by 5 diagonal symmetries.
 11111   10100
 
 *********************************************************************/
+
+/*********************************************************************
+We proved a footprint can't have rotational symmetry on an even board,
+using a parity argument.
+Let's consider an odd board.
+
+Let each quadrant include the midline to its right, so they are distinct.
+On a 7 by 7 board, the upper left quadrant has 12 holes.
+If a pattern coincides with itself after a 90 degree rotation, then each point implies four,
+except for the center which is itself.
+We need 17 points, so there are 4 in each quadrant.
+
+Put the carrier far from the center and it implies 20 squares - too many.
+The battleship implies 16 squares, leaving the center square isolated, which isn't possible.
+There is no ship with one square.
+
+Put the carrier or battleship on the midline, pointing down to the center but not on the center.
+Once again the carrier implies 20 squares.
+Battle implies 16, and might work if it touches the center.
+This is a cross of 17 points.
+However, quick experimentation shows the 5 ships cannot cover this cross.
+
+Let the carrier poke its nose across the midline, so it isn't wholly contained in the quadrant.
+Perhaps 1 square over or perhaps 2.
+If it is 3 rows above the center or more, its nose will not touch its tail in the next quadrant over.
+That's too many squares.
+It's even unworkable for the battle ship, as it leaves the center isolated.
+
+Try two rows above the center.
+Let it poke one square across the midline.
+There is no overlap, and we consume 20 squares, or 16 for the battleship but the center is isolated.
+Poke its nose 2 squares over, which means it is the carrier.
+There is some overlap, but 16 squares are implied and the center is isolated.
+
+Put the carrier on the row above the center.
+Whether its nose is 1 or 2 squares over, it implies 16 points, and then we need the center.
+The second pattern is impossible, but the first one works.
+As long as the board is at least 7 by 7, we have one rotational pattern, or two if you count its reflection.
+
+0000100   0000000
+0000100   0010100
+1111100   0111110
+0011100   0011100
+0011111   0111110
+0010000   0010100
+0010000   0000000
+
+Put the battleship on the row above the center, with its nose right on the midline.
+This repeats the first pattern above.
+Put its nose 1 square over the midline.
+This implies a 13 square pattern.
+We have to add 1 square to each quadrant,
+and we must do so in a way that supports the carrier.
+This creates one of the two patterns above.
+
+Both the carrier and the battleship cannot be on the center.
+One of them is above the center, in its quadrant, and triggers the conditions above.
+That completes the analysis of 90 degree rotational symmetry on an odd board.
+We don't have to write software to test for it, we already know the answer.
+*********************************************************************/
