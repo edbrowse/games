@@ -401,7 +401,7 @@ void placeSub()
 // this is the same code as placeSub, since both ships have three holes
 void placeCruiser()
 {
-    for(int x = 1; x <= top; ++x)
+    for(int x = 1; x <= top; ++x) {
         for(int y = 1; y <= top; ++y) {
             if(b[x][y]) continue;
             if(y <= top-2 && !(b[x][y+1] | b[x][y+2])) {
@@ -409,12 +409,15 @@ void placeCruiser()
                 placeSub();
                 b[x][y] = b[x][y+1] = b[x][y+2] = 0;
             }
-            if(x <= top-2 && !(b[x+1][y] | b[x+2][y])) {
+            if(x <= top-2 && !(b[x+1][y] | b[x+2][y]) &&
+// special code for 5 by 5 board
+            (top > 5 || !(b[1][1]&b[2][3]&b[5][3]) || y < 3)) {
                 b[x][y] = b[x+1][y] = b[x+2][y] = 1;
                 placeSub();
                 b[x][y] = b[x+1][y] = b[x+2][y] = 0;
             }
         }
+    }
 }
 
 void placeBattle()
@@ -663,8 +666,14 @@ The tail of one is on and its reflection is all or part of the sub.
 The tail of another is on and its reflection is all or part of the sub.
 The sub can't cover both these reflections.
 Perhaps the tail of the pt is on and its reflection is part of the carrier.
-The sub and battle make a corner, on the diagonal, and I'll get to those below.
+That puts pt below the tail of the carrier.
+The sub and battle make a corner on the diagonal.
+There are two solutions here, but they are also coming up in subsequent sections.
+This because we can flip the corner to where the sub is below the diagonal.
+So let's set this possibility aside for now.
+Say the sub is not wholly above the diagonal.
 If a ship is wholly above the diagonal it is the pt.
+
 If a ship is in A6, above the diagonal, it has to be the pt.
 Or if the carrier is in row B and anyone is above it has to be the pt.
 That's an imbalance of 6 squares, and we have 10 to play with, and 2 are on the diagonal.
