@@ -990,3 +990,66 @@ One of them is above the center, in its quadrant, and triggers the conditions ab
 That completes the analysis of 90 degree rotational symmetry on an odd board.
 We don't have to write software to test for it, we already know the answer.
 *********************************************************************/
+
+/*********************************************************************
+There is considerably more leeway in 180 degree symmetry.
+By the same parity argument, the center must be present.
+The first question is then, how long is the central line?
+If the board is big enough, it could be 17 squares long.
+All the ships in a row.
+This has an overcount of 120, 5 factorial, the ships being in any order.
+
+
+At first you might think certain lengths are impossible.
+15 for example.
+That leaves only the pt boat, and we can't cut it in half and put one square on each side of the board.
+But try this.
+Put pt and carrier in line, then the sub perpendicular, then battle and cruiser.
+That is 15 long, with the nose and tail of the sub providing the extra squares.
+Sure enough, spin it around and get the same thing.
+
+Put carrier in the center, and we need 6 more squares on either side of the board.
+One side has sub and cruiser, the other has battle and pt.
+These can be lines of 6, or they can be L shaped.
+They can also be far away from the center.
+Lots of possibilities.
+For even modest boards, you will probably need a computer to count the symmetric footprints.
+
+Can we manage it for the 5 by 5 board?
+
+Put the carrier across the middle.
+We don't have room above or below for the line of 6 or the L.
+
+Put the carrier on the second row.
+Battle can't be on the top row, that's 9 squares above and that's too many.
+Nor can it be on the bottom.
+It is probably on the forth row, to counterbalance the carrier.
+Something fills in the last square on that row.
+Also something is in the center -
+either the sub in the middle, or the sub pt line.
+This one isn't going to work out, so put battle in the middle.
+Filll in with the last 3 ships, and note this won't work either.
+
+Finally put carrier on top.
+Let battle run vertically down the middle, covering the center square.
+Fill in the bottom row, and things fall apart.
+
+Battle is horizontal, and can't be in row 2 or 4 because that is too many squares.
+Put battle in the middle row.
+Counting the bottom row, we have 15 squares, and need two more.
+There is a single square in the second row and it has to be to the right of battle, a boat going down.
+It has to be pt, but that means we need another pt below.
+
+Finally battle is on the bottom.
+Something fills in the last corner, and something is in the center.
+pt in the corner doesn't work.
+It has to be sub.
+This gives us the two patterns on the 5 by 5 board with 180 degree symmetry.
+
+11111   11111
+10000   10100
+11111   10101
+00001   00101
+11111   11111
+
+*********************************************************************/
