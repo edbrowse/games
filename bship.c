@@ -130,17 +130,18 @@ So I'll have to settle for an lcm with most of the factors and hope
 the division errors don't catch up with me, after 30 billion arrangements.
 *********************************************************************/
 
-const int lcm = 45945900;
+static const int lcm = 45945900;
 
 // 0 on the board means a hole is unused, nonzero means it is occupied by a ship.
 // The dimensions of 16 are important here, and more than enough for 10 by 10.
-char b[16][16];
-long long cnt = 0;  // count arrangements
-long long cnt_foot = 0; // count footprints
-long long cnt_foot_sym = 0;
+static char b[16][16];
+static long long cnt = 0;  // count arrangements
+static long long cnt_foot = 0; // count footprints
+static long long cnt_foot_sym = 0;
 static int top = 10;
-char unroll = 1, foot, fix_pt;
-char *bk = b[0];
+static char unroll = 1, foot, fix_pt;
+static char carrier_midline;
+static char *bk = b[0];
 
 void printBoard()
 {
@@ -156,11 +157,13 @@ char diagsym()
     for(int x = 1; x < top; ++x)
         for(int y = x + 1; y <= top; ++y)
             if(b[x][y] ^ b[y][x]) goto antidiag;
+//  puts(":"); printBoard();
     return 1;
 antidiag:
     for(int x = 1; x < top; ++x)
         for(int y = x + 1; y <= top; ++y)
             if(b[x][top+1-y] ^ b[y][top+1-x]) goto done;
+//  puts(";"); printBoard();
     return 1;
 done:
     return 0;
@@ -414,32 +417,44 @@ void placeCruiser()
 
 void placeBattle()
 {
-    for(int x = 1; x <= top; ++x)
+    for(int x = 1; x <= top; ++x) {
+        if(carrier_midline && x > carrier_midline) break;
         for(int y = 1; y <= top; ++y) {
         if(b[x][y]) continue;
-        if(y <= top-3 && !(b[x][y+1] | b[x][y+2] | b[x][y+3])) {
+        if(y <= top-3 && !(b[x][y+1] | b[x][y+2] | b[x][y+3]) &&
+// special code for 5 by 5 board
+        (top > 5 || y == 1)) {
+// top <= 6 is mostly for debugging, so print location of battleship
+//          if(top <= 6 && foot) printf("battle h %d,%d\n", x, y);
             b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = 1;
             placeCruiser();
             b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = 0;
         }
-        if(x <= top-3 && !(b[x+1][y] | b[x+2][y] | b[x+3][y])) {
+        if(x <= top-3 && !(b[x+1][y] | b[x+2][y] | b[x+3][y]) &&
+// special code for 5 by 5 board
+        (top > 5 || y <= 3)) {
+//          if(top <= 6 && foot) printf("battle v %d,%d\n", x, y);
             b[x][y] = b[x+1][y] = b[x+2][y] = b[x+3][y] = 1;
             placeCruiser();
             b[x][y] = b[x+1][y] = b[x+2][y] = b[x+3][y] = 0;
         }
         }
+    }
 }
 
 // symmetry; put carrier horizontal and in the upper left quadrant
 void placeCarrier()
 {
-    for(int x = 1; x <= (top+1)/2; ++x)
+    for(int x = 1; x <= (top+1)/2; ++x) {
+        carrier_midline = 0;
+        if(top&1 && x == (top+1)/2) carrier_midline = x;
         for(int y = 1; y <= (top+1)/2 - 2; ++y) {
         if(foot) printf("carrier %d,%d\n", x, y);
         b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = b[x][y+4] = 1;
         placeBattle();
         b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = b[x][y+4] = 0;
         }
+    }
 }
 
 void testBoard()
@@ -471,6 +486,7 @@ int main(int argc, const char **argv)
     const char *args = argc > 1 ? argv[1] : "";
     if(strchr(args, 'b')) testBoard();
     if(strchr(args, 'f')) unroll = 0, foot = 1;
+    if(strstr(args, "t5")) unroll = 0, top = 5;
     if(strstr(args, "t6")) unroll = 0, top = 6;
     if(strstr(args, "t8")) unroll = 0, top = 8;
 
@@ -531,6 +547,7 @@ If two ships are below in column 1, we can't reflect this picture in the upper r
 Thus pt is below and we are in balance.
 The sisters can't touch the diagonal; that doesn't work.
 They are off diagonal and on either side, in any of 6 positions. @6
+6 corner + sisters.
 
 111111
 100001
@@ -561,6 +578,7 @@ This won't work.
 Put sub in B1 pointing down.
 If 2 ships fill in below then the last ship can't make up for that on the right.
 pt is below, and the tail of battle has to be on the diagonal. @4
+Legs + 4 corner.
 
 011111
 100010
@@ -574,6 +592,7 @@ Someone has to be vertical in column 1. Try battle.
 Someone is in C2.
 If it is horizontal it touches the diagonal, and the last ship is also on the diagonal,
 and that could work with cruiser and pt. @1
+Legs + double bump.
 
 011111
 111000
@@ -593,7 +612,10 @@ Put pt in F1, with battle in row C and cruiser in row D, no good.
 
 Finally put pt in B1.
 Let it run across, with battle below. This is in balance.
-The sisters fill in. @6
+The sisters fill in in 6 ways, but one of them is a repeat.
+When they bump up against 2,2 it looks like the corner
+placed in the legs in an earlier section. @5
+Jog legs + sisters.
 
 011111
 110000
@@ -619,6 +641,7 @@ and that won't make a net gain of 4.
 One way to balance is battle in column 6, and sub and pt down column 1, and cruiser in row F.
 We've seen this pattern before.
 Another way has the carrier in row B. @1
+Jog rectangles.
 
 001111
 011111
@@ -653,6 +676,7 @@ This covers B1, and something has to cover A2, which we just ruled out.
 Put a ship in A1 running across. It is not the pt.
 Another ship is in B1 going down.
 Only two ships remain, and they must fill in column 2 and touch the diagonal. @1
+3 by 3 + a4 + b pole.
 
 111100
 111111
@@ -668,6 +692,7 @@ Put battle below the tail of the carrier, which brings the count in balance.
 There is one workable arrangement of sub cruiser pt across the diagonal.
 It looks like a square with a notch taken out of it.
 The notch can be upper left or lower right, and the square can move up or down the diagonal. @10
+5 corner + notch block.
 
 111110
 100000
@@ -686,10 +711,21 @@ This can be done but it is the previous pattern.
 Put sub vertical below the tail of the carrier.
 Someone is below that, plus two more ships on the diagonal.
 That can't work, so let sub run across.
-That can't work either, so turn to pt.
+This works in an unexpected way. @2
+3 by 3 + two poles.
+
+111110
+111000
+111110
+101000
+101000
+000000
+
+Next turn to pt.
 We still want two more ships on the diagonal so pt vertical doesn't work.
 Make it horizontal.
 Sub runs below that and leaves battle and cruiser to make a corner on the diagonal. @4
+5 corner + bump + 4 corner.
 
 111110
 110000
@@ -705,14 +741,9 @@ Something is in A2, a ship in the A row.
 Let it start in A2.
 Let it be at least a sub.
 We need to fill C and D 1 and 2, with none or two more ships on the diagonal.
-There is one way, if sub and pt are both in row A. @1
-
-011111
-111110
-110000
-110000
-110000
-100000
+There is one way, if sub and pt are both in row A.
+However, we've seen it before;
+when we had separated legs of length 5, and then a corner of length 4 put in any of 4 positions.
 
 Next put pt in A2 A3.
 Someone runs across C, to fill in C1 C2, but we still need D2 and E2, and something else on the diagonal.
@@ -725,6 +756,7 @@ we have to fill in columns 1 and 2 plus something on the diagonal, and only two 
 Let battle run down column 2, but it is longer than we need, and causes trouble.
 Let sub fill in column 2, creating a balance.
 Battle and cruiser then make a corner. @2
+2 by 2 + b pole + 4 corner.
 
 110000
 111110
@@ -768,6 +800,7 @@ and let another ship start at B2 or B3, since something has to cover B3.
 Another ship runs down from B1.
 If the ship in row B reaches B4, I need the last ship to cover D2 D3 E3 F3, which it can't.
 Thus B2 is pt, B1 is sub, A1 is battle, and D3 down is cruiser. @1
+3 by 3 + a4 + c pole.
 
 111100
 111000
@@ -812,6 +845,7 @@ The rest can't be balanced.
 Put the pt in A3 B3.
 Something runs down from C1, and that puts another ship across at A4.
 These are battle and sub respectively, and cruiser completes the picture. @1
+Cross fork.
 
 001111
 001000
@@ -851,6 +885,8 @@ an arrangement in standard form.
 This would take a bit of programming inside the various placeBoat() routines,
 but not rocket science.
 After that, I think it likely that the program would run as is.
+I made the simple changes for t5, top is 5, 5 by 5 board.
+Things aren't quite that simple for t7 t9.
 
 Footprints can have more symmetry on an off board.
 Even a 5 by 5 board.
@@ -863,5 +899,19 @@ It's possible to arrange the boats like this.
 11111
 
 You may want to count these symmetries, the way I count
-diagonal symmetries today.
+diagonal symmetries today. Just for a diversion,
+here are the 5 by 5 diagonal symmetries.
+
+11111   11111   11111   11111
+11110   10110   10000   10000
+11110   11110   10111   10011
+11100   11110   10111   10111
+10000   10000   10110   10111
+
+11111   11111
+11001   11100
+10001   11111
+10001   10100
+11111   10100
+
 *********************************************************************/
