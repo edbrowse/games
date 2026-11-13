@@ -128,6 +128,8 @@ Unfortunately the lcm is 160626866400,
 which is to large even for a long long.
 So I'll have to settle for an lcm with most of the factors and hope
 the division errors don't catch up with me, after 30 billion arrangements.
+I keep all the factors up through 17,
+but divide by 8 since we are going to multiply by 8 anyways.
 *********************************************************************/
 
 static const int lcm = 45945900;
@@ -560,24 +562,25 @@ Put pt in A1.
 Battle could fill in below, giving the same situation, and the same footprints.
 If battle is in Row C then sub is below and we can't complete the picture.
 Let sub point down, then something has to fill in F1.
-If has to be battle, with cruiser on the right. Seen before.
+If has to be battle, with cruiser on the right. We saw this before, corner + sisters.
 If sub is across in Row C then Cruiser is below.
 Battle has to fill in B3 and this doesn't work.
 
 Put sub in A1.
 The only way to finish is pt below sub, battle in row F, and cruiser on the right, which we saw before.
 
-Now A1 has to be empty.
-Someone has to be in B1.
+At this point A1 has to be empty.
+Something has to be in B1.
 If battle runs down column 1, we still need to fill in F1.
 Its counterpart is in column 6, and the last ship is on the diagonal, and that can't balance.
+
 Let battle run across in row B.
-Somebody is vertical in column 1.
+Something is vertical in column 1.
 This won't work.
 
 Put sub in B1 pointing down.
 If 2 ships fill in below then the last ship can't make up for that on the right.
-pt is below, and the tail of battle has to be on the diagonal. @4
+pt is below, and the tail of battle has to be on the diagonal, making a corner. @4
 Legs + 4 corner.
 
 011111
@@ -588,8 +591,8 @@ Legs + 4 corner.
 100000
 
 Let sub run across in row B.
-Someone has to be vertical in column 1. Try battle.
-Someone is in C2.
+Something has to be vertical in column 1. Try battle.
+Something is in C2.
 If it is horizontal it touches the diagonal, and the last ship is also on the diagonal,
 and that could work with cruiser and pt. @1
 Legs + double bump.
@@ -601,13 +604,14 @@ Legs + double bump.
 100000
 100000
 
-Or cruiser could run down column 2 with pt in row B, seen before.
+Or cruiser could run down column 2 with pt in row B,
+but this is legs + corner wich we saw before.
 
-We finished battle in column 1, so something in column 1 is horizontal.
+We finished battle in column 1 below sub, so something in column 1 is horizontal.
 If it is in row F, we still need something in C2, and there are no ships left for the right side.
 Put the cruiser in F1 pointing up,
 and we can make this work with battle in row C and pt in row D,
-but we've seen this before.
+but this is the double bump again.
 Put pt in F1, with battle in row C and cruiser in row D, no good.
 
 Finally put pt in B1.
@@ -628,10 +632,10 @@ Without battle, something in column 1 is horizontal.
 It could be in row F, battle, with cruiser on the right.
 Covered in the previous paragraph.
 That's the only one that works, so let pt point down.
-Somebody has to be vertical, so let it be sub.
-This is the same situation we saw earlier.
+Something has to be vertical, and there is only room for sub.
+This is legs, the same situation we saw earlier.
 That finishes carrier off diagonal.
-We've got 17 out of 38.
+We've got 16 out of 38.
 
 Put the tail of the carrier on the main diagonal, on A1 or B2.
 Assume no other ships are on the diagonal.
@@ -651,26 +655,28 @@ Jog rectangles.
 110000
 
 With that finished, 2 other ships, besides the carrier,
-must touch the diagonal.
+touch the diagonal.
 If battle is wholly in the upper right, we have 8 squares to make up,
 but only 6 squares can be below the diagonal.
 If sub is in the upper right, we have 7 to make up, and the other three ships are on or below the diagonal.
 The tail of one is on and its reflection is all or part of the sub.
 The tail of another is on and its reflection is all or part of the sub.
 The sub can't cover both these reflections.
+Perhaps the tail of the pt is on and its reflection is part of the carrier.
+The sub and battle make a corner, on the diagonal, and I'll get to those below.
 If a ship is wholly above the diagonal it is the pt.
-
 If a ship is in A6, above the diagonal, it has to be the pt.
-Or if the carrier is in row B and anyone is at or above it has to be the pt.
+Or if the carrier is in row B and anyone is above it has to be the pt.
 That's an imbalance of 6 squares, and we have 10 to play with, and 2 are on the diagonal.
 Just one pokes across the diagonal and it is nowhere near the pt.
 For proper symmetry, we need another pt in column 1, and we don't have one.
 There is then no ship to the right of the carrier or above the carrier.
 
-Put pt in A1 A2.
+Continuing carrier in B,
+put pt in A1 A2.
 Something goes down from B1, and some ship is in A3, which we just showed was impossible.
 
-With carrier in row B, put some ship in A1 going down.
+Put some ship in A1 going down.
 This covers B1, and something has to cover A2, which we just ruled out.
 
 Put a ship in A1 running across. It is not the pt.
@@ -709,7 +715,7 @@ and one on the diagonal.
 This can be done but it is the previous pattern.
 
 Put sub vertical below the tail of the carrier.
-Someone is below that, plus two more ships on the diagonal.
+Something is below that, plus two more ships on the diagonal.
 That can't work, so let sub run across.
 This works in an unexpected way. @2
 3 by 3 + two poles.
@@ -746,7 +752,7 @@ However, we've seen it before;
 when we had separated legs of length 5, and then a corner of length 4 put in any of 4 positions.
 
 Next put pt in A2 A3.
-Someone runs across C, to fill in C1 C2, but we still need D2 and E2, and something else on the diagonal.
+Something runs across C, to fill in C1 C2, but we still need D2 and E2, and something else on the diagonal.
 That won't work, so let the ship in row A start in A1.
 If it is battle, we need C and D 1 and 2, and E2 and something else on the diagonal.
 Sub in row A doesn't work out any better.
@@ -769,7 +775,7 @@ That's it for carrier in row B.
 
 The carrier has to be in row C.
 Start it at C1.
-Somebody fills in A3 B3 D3 E3.
+Something fills in A3 B3 D3 E3.
 Let two ships run across A and B.
 Let one start at A1, whence the other starts at B1.
 If one is pt we need another to complete column 3.
