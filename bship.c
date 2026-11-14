@@ -1053,3 +1053,60 @@ This gives us the two patterns on the 5 by 5 board with 180 degree symmetry.
 11111   11111
 
 *********************************************************************/
+
+/*********************************************************************
+What about reflections on a 5 by 5 board?
+If a pattern is both a horizontal and vertical reflection, then it also has 180 degree rotational symmetry.
+We characterized those above and none of them are their own reflections.
+So we are either vertical or horizontal.
+
+Look for vertical first.
+Put carrier in row 1, and battle in row 3, and 14 squares are implied.
+The odd square completes row 3, and the other single square in row 2 has to be from this ship.
+This pattern works, and looks like a capital E backwards. @1
+
+If battle is in row 2 or 4 then too many squares are implied.
+Put battle in row 5, to counterbalance the carrier.
+Something fills the bottom corner.
+This works in one way, and makes something like a capital U on its side. @1
+
+Put carrier in row 2.
+If battle is in row 1 or 5, 18 squares are implied.
+Put battle in row 3, whence 14 squares are implied.
+Fill in the last square in row 3, and it doesn't complete.
+Put battle in row 4 and fill in the last square on that row.
+pt pointing down is a bust.
+pt pointing up works in 3 ways, as the sisters move across in rows 1 and 5. @3
+Sub works, but repeats one of these three patterns.
+
+Finally put carrier in row 3.
+Put battle and pt above the carrier, and the sisters below.
+This doesn't balance.
+
+11111   11111   11100
+00001   00111   11111
+11111   00001   00001
+00001   00111   11111
+11111   11111   11100
+
+Now look for horizontal reflection.
+Wherever the carrier is, it is compatible with reflection.
+And it provides 1 square on the midline, which must have an odd number of squares.
+Put carrier in the top row and battle down the midline.
+The other three ships can't balance.
+Slide battle to the left, and there is one solution.
+It fills columns 2 3 and 4 and looks like a table. @1
+Slide battle farther to the left and there is no solution.
+
+Now battle is horizontal, and something fills in its row, and something else is on the midline.
+Carrier could be in row 1 2 or 3,
+and battle in any of the other rows.
+If sub runs down the midline, the other two ships can balance,
+and this happens with battle in row 2 or row 4. @2
+Now there is just one additional ship across the midline.
+If it is sub straddling the midline, it is essentially separate from carrier above and from the battle cruiser pt complex below.
+There are many combinations here; make sure we don't overcount footprints. @10
+The tail of sub on the midline, or pt on the midline, doesn't work.
+
+There are 18 all together, or 72 if you count reflections.
+*********************************************************************/
