@@ -140,6 +140,7 @@ static char b[16][16];
 static long long cnt = 0;  // count arrangements
 static long long cnt_foot = 0; // count footprints
 static long long cnt_foot_sym = 0;
+static long long cnt_foot_ref = 0;
 static int top = 10;
 static char unroll = 1, foot, fix_pt;
 static char carrier_midline;
@@ -165,6 +166,24 @@ antidiag:
     for(int x = 1; x < top; ++x)
         for(int y = x + 1; y <= top; ++y)
             if(b[x][top+1-y] ^ b[y][top+1-x]) goto done;
+//  puts(";"); printBoard();
+    return 1;
+done:
+    return 0;
+}
+
+char reflection()
+{
+    if(!(top&1)) return 0;
+    for(int x = 1; x <= top; ++x)
+        for(int y = 1; y <= top/2; ++y)
+            if(b[x][y] ^ b[x][top+1-y]) goto vertical;
+//  puts(":"); printBoard();
+    return 1;
+vertical:
+    for(int x = 1; x <= top/2; ++x)
+        for(int y = 1; y <= top; ++y)
+            if(b[x][y] ^ b[top+1-x][y]) goto done;
 //  puts(";"); printBoard();
     return 1;
 done:
@@ -308,9 +327,11 @@ void placePT_standard()
 // we have to put pt on the board to determine symmetry
                     b[x][y] = b[x][y+1] = 1;
                     char sym = ((b[y][x]&b[y+1][x] || b[top+1-y][top+1-x]&b[top+1-(y+1)][top+1-x]) && diagsym());
+                    char ref = reflection();
                     int add = 8*lcm/k;
                     cnt_foot += add;
                     if(sym) cnt_foot_sym += add;
+                    if(ref) cnt_foot_ref += add;
                     b[x][y] = b[x][y+1] = 0;
                 }
             }
@@ -339,9 +360,11 @@ void placePT_standard()
                     int k = compute_k();
                     b[x][y] = b[x+1][y] = 1;
                     char sym = ((b[y][x]&b[y][x+1] || b[top+1-y][top+1-x]&b[top+1-y][top+1-(x+1)]) && diagsym());
+                    char ref = reflection();
                     int add = 8*lcm/k;
                     cnt_foot += add;
                     if(sym) cnt_foot_sym += add;
+                    if(ref) cnt_foot_ref += add;
                     b[x][y] = b[x+1][y] = 0;
                 }
             }
@@ -500,7 +523,8 @@ int main(int argc, const char **argv)
     printf("%lld arrangements\n", cnt * 8);
     if(foot) {
         printf("%lld footprints error %lld\n", cnt_foot/lcm, cnt_foot%lcm);
-        printf("%lld symmetric error %lld\n", cnt_foot_sym/lcm, cnt_foot_sym%lcm);
+        printf("%lld diagonal error %lld\n", cnt_foot_sym/lcm, cnt_foot_sym%lcm);
+        if(cnt_foot_ref) printf("%lld reflection error %lld\n", cnt_foot_ref/lcm, cnt_foot_ref%lcm);
     }
 }
 
@@ -1028,7 +1052,7 @@ Something fills in the last square on that row.
 Also something is in the center -
 either the sub in the middle, or the sub pt line.
 This one isn't going to work out, so put battle in the middle.
-Filll in with the last 3 ships, and note this won't work either.
+15 ssquares consumed by rows 2 3 and 4, a single square in row 1, and that won't work.
 
 Finally put carrier on top.
 Let battle run vertically down the middle, covering the center square.
@@ -1052,13 +1076,17 @@ This gives us the two patterns on the 5 by 5 board with 180 degree symmetry.
 00001   00101
 11111   11111
 
+These are the base footprints; they are then rotated and reflected,
+giving 8 footprints with 180 degree symmetry.
 *********************************************************************/
 
 /*********************************************************************
 What about reflections on a 5 by 5 board?
-If a pattern is both a horizontal and vertical reflection, then it also has 180 degree rotational symmetry.
+If a pattern is both a horizontal and vertical reflection, then it also has 180 degree symmetry.
 We characterized those above and none of them are their own reflections.
 So we are either vertical or horizontal.
+On a larger board we can have both.
+Put carrier pt and battle in a line, and put sub above and cruiser below.
 
 Look for vertical first.
 Put carrier in row 1, and battle in row 3, and 14 squares are implied.
@@ -1068,12 +1096,13 @@ This pattern works, and looks like a capital E backwards. @1
 If battle is in row 2 or 4 then too many squares are implied.
 Put battle in row 5, to counterbalance the carrier.
 Something fills the bottom corner.
+pt doesn't get us anywhere, so try sub.
 This works in one way, and makes something like a capital U on its side. @1
 
 Put carrier in row 2.
 If battle is in row 1 or 5, 18 squares are implied.
 Put battle in row 3, whence 14 squares are implied.
-Fill in the last square in row 3, and it doesn't complete.
+Fill in the last square in row 3, to make an odd number, and it doesn't complete.
 Put battle in row 4 and fill in the last square on that row.
 pt pointing down is a bust.
 pt pointing up works in 3 ways, as the sisters move across in rows 1 and 5. @3
@@ -1081,7 +1110,7 @@ Sub works, but repeats one of these three patterns.
 
 Finally put carrier in row 3.
 Put battle and pt above the carrier, and the sisters below.
-This doesn't balance.
+There is no way to make them reflections of each other.
 
 11111   11111   11100
 00001   00111   11111
@@ -1096,17 +1125,37 @@ Put carrier in the top row and battle down the midline.
 The other three ships can't balance.
 Slide battle to the left, and there is one solution.
 It fills columns 2 3 and 4 and looks like a table. @1
-Slide battle farther to the left and there is no solution.
+Slide battle all the way to the left.
+If column 2 contains 2 or 3 squares (below the carrier) we can't make it balance.
+If it contains no squares we need full columns in 3 and 5, and we can't do that with the ships remaining.
+Put a ship across the midline and that doesn't work either.
 
 Now battle is horizontal, and something fills in its row, and something else is on the midline.
 Carrier could be in row 1 2 or 3,
 and battle in any of the other rows.
-If sub runs down the midline, the other two ships can balance,
+
+If sub runs down the midline,
+keeping carrier on top,
+the other two ships can balance,
 and this happens with battle in row 2 or row 4. @2
 Now there is just one additional ship across the midline.
 If it is sub straddling the midline, it is essentially separate from carrier above and from the battle cruiser pt complex below.
-There are many combinations here; make sure we don't overcount footprints. @10
+There are many combinations here; make sure we don't undercount or overcount footprints. @12
 The tail of sub on the midline, or pt on the midline, doesn't work.
 
-There are 18 all together, or 72 if you count reflections.
+There are 20 all together, or 80 if you count rotations.
+This is confirmed by the software.
+*********************************************************************/
+
+/*********************************************************************
+Now we can apply Bernside Polya to the 5 by 5 board, to see
+how many footprints there are, grouped together by rotations and reflections.
+There are 25176 footprints on the grid.
+This is the number that goes with the identity action of the dihedral group.
+There are no patterns under 90 degree rotation, so that is 0 + 0.
+There are 8 under 180 degree rotation.
+We have 24 fixed by diagonal reflections, and 80 fixed by lateral reflections.
+(25176 + 8 + 24 + 80) / 8 = 3161.
+It surprises me, that there are so many footprints, distinct among rotations and reflections,
+when the 5 ships are crammed into such a tiny space.
 *********************************************************************/
