@@ -302,14 +302,14 @@ int compute_k()
         if(expect == h) { ++k; goto pop; }
     // there's room, but see if it leaves an isolated square
         if(h1 == h + 1 && !(p[h+16]|p[h-16])) goto next;
-        if(!avail[3] && h1 == h + 2 && !(p[h+16]|p[h-16]|p[h+17]|p[h-15])) goto next;
+        if(!avail[3] && h1 == h + 2 && !(p[h+17]|p[h-15])) goto next;
     // place this ship here in the footprint
         for(l = 0; l < h; ++l) p[l] = 0;
     } else {
         if(h > h2) goto next;
         if(expect == h) { ++k; goto pop; }
         if(h2 == h + 1 && !(p[16*h+1]|p[16*h-1])) goto next;
-        if(!avail[3] && h2 == h + 2 && !(p[16*h+1]|p[16*h-1]|p[16*h+17]|p[16*h+15])) goto next;
+        if(!avail[3] && h2 == h + 2 && !(p[16*h+17]|p[16*h+15])) goto next;
         // place this ship here in the footprint
         for(l = 0; l < h; ++l) p[16*l] = 0;
     }
@@ -350,7 +350,7 @@ int compute_k()
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 27m41s
+// foot -O 27m25s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
@@ -1228,5 +1228,5 @@ It surprises me, that there are so many footprints, distinct among rotations and
 when the 5 ships are crammed into such a tiny space.
 For comparison, the number of patterns, adjusting for rotations and reflections,
 of 17 independent pegs, in the same space, is:
-([25:17] + 2*[6:4] + [12:8] + 4*([5:1]*[10:8] + [5:3]*[10:7] + [5:5]*[10:6])) / 8 = 136080.
+(<25/17> + 2*<6/4> + <12/8> + 4*(<5/1>*<10/8> + <5/3>*<10/7> + <5/5>*<10/6>)) / 8 = 136080.
 *********************************************************************/
