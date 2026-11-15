@@ -204,9 +204,9 @@ int compute_k()
     unsigned char fix_sub = 0, fix_cruiser = 0, fix_battle = 0;
     char expect = 17;
     int lev = -1;
-    int n, h, h1, h2, l;
+    int n, h, h1, h2, d, l;
     char *p = bk + 17;
-    struct frame { char *p; int n, h1, h2; } stack[8];
+    struct frame { char *p; int n, h1, h2, d; } stack[8];
     struct frame *sf = stack - 1;
     int k = 0;
 
@@ -258,7 +258,6 @@ skip_fix:
     ++lev, ++sf;
     while(!*p) ++p;
     sf->p = p;
-    sf->n = -1;
     h1 = 1;
     if(!p[1]) goto got_h1;
     ++h1;
@@ -292,10 +291,16 @@ skip_fix:
     ++h2;
     got_h2:
     sf->h1 = h1, sf->h2 = h2;
+    n = -1, d = 1;
+    if(h1 == 1 || h1 == 2 && !avail[3])
+        d = 2;
+    else if(h2 == 1 || h2 == 2 && !avail[3])
+        d = 2, --n;
+    sf->n = n, sf->d = d;
 
     next:
-    n = ++sf->n;
-    if(n == 8) goto pop;
+    n = (sf->n += sf->d);
+    if(n >= 8) goto pop;
     if(!avail[n/2]) goto next;
     h = holes[n/2];
     if(h > expect) goto next;
@@ -353,7 +358,7 @@ skip_fix:
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 27m25s
+// foot -O 25m06s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
