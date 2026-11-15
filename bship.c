@@ -1158,4 +1158,7 @@ We have 24 fixed by diagonal reflections, and 80 fixed by lateral reflections.
 (25176 + 8 + 24 + 80) / 8 = 3161.
 It surprises me, that there are so many footprints, distinct among rotations and reflections,
 when the 5 ships are crammed into such a tiny space.
+For comparison, the number of patterns, adjusting for rotations and reflections,
+of 17 independent pegs, in the same space, is:
+([25:17] + 2*[6:4] + [12:8] + 4*([5:1]*[10:8] + [5:3]*[10:7] + [5:5]*[10:6])) / 8 = 136080.
 *********************************************************************/
