@@ -5,7 +5,7 @@
 // output of bship f, after about an hour.
 // 30093975536 arrangements
 // 13659009420 footprints
-// 3380 symmetric
+// 3380 diagonal
 
 /*********************************************************************
 An arrangement is the position of all five boats on the board.
@@ -142,7 +142,7 @@ static long long cnt_foot = 0; // count footprints
 static long long cnt_foot_sym = 0;
 static long long cnt_foot_ref = 0;
 static int top = 10;
-static char unroll = 1, foot, fix_pt;
+static char unroll = 1, foot;
 static char carrier_midline;
 static char *bk = b[0];
 
@@ -190,10 +190,18 @@ done:
     return 0;
 }
 
+// Remember where we placed some ships, to make compute_k run faster.
+static unsigned char fix_pt;
+static unsigned char psl, psh; // sub
+static unsigned char pcl, pch; // cruiser
+static unsigned char pbl, pbh; // battle
+
+
 int compute_k()
 {
     static const char holes[4] = {5, 4, 3, 2};
     char avail[4];
+    unsigned char fix_sub = 0, fix_cruiser = 0, fix_battle = 0;
     char expect = 17;
     int lev = -1;
     int n, h, h1, h2, l;
@@ -201,8 +209,47 @@ int compute_k()
     struct frame { char *p; int n, h1, h2; } stack[8];
     struct frame *sf = stack - 1;
     int k = 0;
+
     avail[0] = avail[1] = avail[3] = 1, avail[2] = 2;
     if(fix_pt) expect = 15, avail[3] = 0;
+
+    if(psh && !bk[psl - 1] && !bk[psl - 16] && !bk[psl + 16] &&
+    !bk[(psl+2) + 1] && !bk[(psl+2) - 16] && !bk[(psl+2) + 16])
+        fix_sub = 1;
+    if(pch && !bk[pcl - 1] && !bk[pcl - 16] && !bk[pcl + 16] &&
+    !bk[(pcl+2) + 1] && !bk[(pcl+2) - 16] && !bk[(pcl+2) + 16])
+        fix_cruiser = 1;
+    if(pbh && !bk[pbl - 1] && !bk[pbl - 16] && !bk[pbl + 16] &&
+    !bk[(pbl+3) + 1] && !bk[(pbl+3) - 16] && !bk[(pbl+3) + 16])
+        fix_battle = 1;
+    if(!psh && !bk[psl - 1] && !bk[psl - 16] && !bk[psl + 1] &&
+    !bk[(psl+32) - 1] && !bk[(psl+32) + 16] && !bk[(psl+32) + 1])
+        fix_sub = 1;
+    if(!pch && !bk[pcl - 1] && !bk[pcl - 16] && !bk[pcl + 1] &&
+    !bk[(pcl+32) - 1] && !bk[(pcl+32) + 16] && !bk[(pcl+32) + 1])
+        fix_cruiser = 1;
+    if(!pbh && !bk[pbl - 1] && !bk[pbl - 16] && !bk[pbl + 1] &&
+    !bk[(pbl+48) - 1] && !bk[(pbl+48) + 16] && !bk[(pbl+48) + 1])
+        fix_battle = 1;
+
+// if everything is fixed there is nothing to do
+    if(fix_pt & fix_sub & fix_cruiser & fix_battle) return 2;
+
+    if(fix_sub) {
+        if(psh) bk[psl] = bk[psl+1] = bk[psl+2] = 0;
+        else bk[psl] = bk[psl+16] = bk[psl+32] = 0;
+        avail[2]--, expect -= 3;
+    }
+    if(fix_cruiser) {
+        if(pch) bk[pcl] = bk[pcl+1] = bk[pcl+2] = 0;
+        else bk[pcl] = bk[pcl+16] = bk[pcl+32] = 0;
+        avail[2]--, expect -= 3;
+    }
+    if(fix_battle) {
+        if(pbh) bk[pbl] = bk[pbl+1] = bk[pbl+2] = bk[pbl+3] = 0;
+        else bk[pbl] = bk[pbl+16] = bk[pbl+32] = bk[pbl+48] = 0;
+        avail[1]--, expect -= 4;
+    }
 
     push:
     ++lev, ++sf;
@@ -271,7 +318,22 @@ int compute_k()
     goto push;
 
     pop:
-    if(--lev < 0) return 2*k;
+    if(--lev < 0) {
+        k *= 2;
+        if(fix_sub) {
+            if(psh) bk[psl] = bk[psl+1] = bk[psl+2] = 1;
+            else bk[psl] = bk[psl+16] = bk[psl+32] = 1;
+        }
+        if(fix_cruiser) {
+            if(pch) bk[pcl] = bk[pcl+1] = bk[pcl+2] = 1;
+            else bk[pcl] = bk[pcl+16] = bk[pcl+32] = 1;
+        }
+        if(fix_battle) {
+            if(pbh) bk[pbl] = bk[pbl+1] = bk[pbl+2] = bk[pbl+3] = 1;
+            else bk[pbl] = bk[pbl+16] = bk[pbl+32] = bk[pbl+48] = 1;
+        }
+        return k;
+    }
     --sf;
     p = sf->p, n = sf->n, h1 = sf->h1, h2 = sf->h2;
     h = holes[n/2];
@@ -288,7 +350,7 @@ int compute_k()
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 49m28s
+// foot -O 27m41s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
@@ -410,11 +472,13 @@ void placeSub()
             if(b[x][y]) continue;
             if(y <= top-2 && !(b[x][y+1] | b[x][y+2])) {
                 b[x][y] = b[x][y+1] = b[x][y+2] = 1;
+                psl = 16*x + y, psh = 1;
                 if(unroll) placePT_fast(); else placePT_standard();
                 b[x][y] = b[x][y+1] = b[x][y+2] = 0;
             }
             if(x <= top-2 && !(b[x+1][y] | b[x+2][y])) {
                 b[x][y] = b[x+1][y] = b[x+2][y] = 1;
+                psl = 16*x + y, psh = 0;
                 if(unroll) placePT_fast(); else placePT_standard();
                 b[x][y] = b[x+1][y] = b[x+2][y] = 0;
             }
@@ -429,6 +493,7 @@ void placeCruiser()
             if(b[x][y]) continue;
             if(y <= top-2 && !(b[x][y+1] | b[x][y+2])) {
                 b[x][y] = b[x][y+1] = b[x][y+2] = 1;
+                pcl = 16*x + y, pch = 1;
                 placeSub();
                 b[x][y] = b[x][y+1] = b[x][y+2] = 0;
             }
@@ -436,6 +501,7 @@ void placeCruiser()
 // special code for 5 by 5 board
             (top > 5 || !(b[1][1]&b[2][3]&b[5][3]) || y < 3)) {
                 b[x][y] = b[x+1][y] = b[x+2][y] = 1;
+                pcl = 16*x + y, pch = 0;
                 placeSub();
                 b[x][y] = b[x+1][y] = b[x+2][y] = 0;
             }
@@ -448,24 +514,26 @@ void placeBattle()
     for(int x = 1; x <= top; ++x) {
         if(carrier_midline && x > carrier_midline) break;
         for(int y = 1; y <= top; ++y) {
-        if(b[x][y]) continue;
-        if(y <= top-3 && !(b[x][y+1] | b[x][y+2] | b[x][y+3]) &&
+            if(b[x][y]) continue;
+            if(y <= top-3 && !(b[x][y+1] | b[x][y+2] | b[x][y+3]) &&
 // special code for 5 by 5 board
-        (top > 5 || y == 1)) {
+            (top > 5 || y == 1)) {
 // top <= 6 is mostly for debugging, so print location of battleship
-//          if(top <= 6 && foot) printf("battle h %d,%d\n", x, y);
-            b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = 1;
-            placeCruiser();
-            b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = 0;
-        }
-        if(x <= top-3 && !(b[x+1][y] | b[x+2][y] | b[x+3][y]) &&
+//              if(top <= 6 && foot) printf("battle h %d,%d\n", x, y);
+                b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = 1;
+                pbl = 16*x + y, pbh = 1;
+                placeCruiser();
+                b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = 0;
+            }
+            if(x <= top-3 && !(b[x+1][y] | b[x+2][y] | b[x+3][y]) &&
 // special code for 5 by 5 board
-        (top > 5 || y <= 3)) {
-//          if(top <= 6 && foot) printf("battle v %d,%d\n", x, y);
-            b[x][y] = b[x+1][y] = b[x+2][y] = b[x+3][y] = 1;
-            placeCruiser();
-            b[x][y] = b[x+1][y] = b[x+2][y] = b[x+3][y] = 0;
-        }
+            (top > 5 || y <= 3)) {
+//              if(top <= 6 && foot) printf("battle v %d,%d\n", x, y);
+                b[x][y] = b[x+1][y] = b[x+2][y] = b[x+3][y] = 1;
+                pbl = 16*x + y, pbh = 0;
+                placeCruiser();
+                b[x][y] = b[x+1][y] = b[x+2][y] = b[x+3][y] = 0;
+            }
         }
     }
 }
