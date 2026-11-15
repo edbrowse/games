@@ -213,6 +213,8 @@ int compute_k()
     avail[0] = avail[1] = avail[3] = 1, avail[2] = 2;
     if(fix_pt) expect = 15, avail[3] = 0;
 
+if(psl == 255) goto skip_fix; // for textBoard()
+
     if(psh && !bk[psl - 1] && !bk[psl - 16] && !bk[psl + 16] &&
     !bk[(psl+2) + 1] && !bk[(psl+2) - 16] && !bk[(psl+2) + 16])
         fix_sub = 1;
@@ -250,6 +252,7 @@ int compute_k()
         else bk[pbl] = bk[pbl+16] = bk[pbl+32] = bk[pbl+48] = 0;
         avail[1]--, expect -= 4;
     }
+skip_fix:
 
     push:
     ++lev, ++sf;
@@ -571,6 +574,7 @@ void testBoard()
 // this doesn't benefit from our fix_pt logic, nor does it test that logic,
 // but should still give the right answer.
     fix_pt = 0;
+    psl = 255;
     int k = compute_k();
     printf("k=%d\n", k);
     if(diagsym()) puts("symmetric");
