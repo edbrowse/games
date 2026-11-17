@@ -4,8 +4,9 @@
 
 // output of bship f, after about an hour.
 // 30093975536 arrangements
-// 13659009420 footprints
+// 13659009420 footprints roundup
 // 3380 diagonal
+// 0 reflection
 
 /*********************************************************************
 An arrangement is the position of all five boats on the board.
@@ -203,7 +204,6 @@ int compute_k()
     char avail[4];
     unsigned char fix_sub = 0, fix_cruiser = 0, fix_battle = 0;
     char expect = 17;
-    int lev = -1;
     int n, h, h1, h2, d, l;
     char *p = bk + 17;
     struct frame { char *p; int n, h1, h2, d; } stack[8];
@@ -255,7 +255,7 @@ if(psl == 255) goto skip_fix; // for textBoard()
 skip_fix:
 
     push:
-    ++lev, ++sf;
+    ++sf;
     while(!*p) ++p;
     sf->p = p;
     h1 = 1;
@@ -296,10 +296,10 @@ skip_fix:
         d = 2;
     else if(h2 == 1 || h2 == 2 && !avail[3])
         d = 2, --n;
-    sf->n = n, sf->d = d;
+    sf->d = d;
 
     next:
-    n = (sf->n += sf->d);
+    n += d;
     if(n >= 8) goto pop;
     if(!avail[n/2]) goto next;
     h = holes[n/2];
@@ -311,22 +311,37 @@ skip_fix:
     // there's room, but see if it leaves an isolated square
         if(h1 == h + 1 && !(p[h+16]|p[h-16])) goto next;
         if(!avail[3] && h1 == h + 2 && !(p[h+17]|p[h-15])) goto next;
-    // place this ship here in the footprint
-        for(l = 0; l < h; ++l) p[l] = 0;
+// place this ship here in the footprint
+// h is no more than 5, so let's unroll
+// every instruction in this function matters
+        p[0] = p[1] = 0;
+        if(h == 2) goto placed;
+        p[2] = 0;
+        if(h == 3) goto placed;
+        p[3] = 0;
+        if(h == 4) goto placed;
+        p[4] = 0;
     } else {
         if(h > h2) goto next;
         if(expect == h) { ++k; goto pop; }
         if(h2 == h + 1 && !(p[16*h+1]|p[16*h-1])) goto next;
         if(!avail[3] && h2 == h + 2 && !(p[16*h+17]|p[16*h+15])) goto next;
-        // place this ship here in the footprint
-        for(l = 0; l < h; ++l) p[16*l] = 0;
+        p[0] = p[16] = 0;
+        if(h == 2) goto placed;
+        p[32] = 0;
+        if(h == 3) goto placed;
+        p[48] = 0;
+        if(h == 4) goto placed;
+        p[64] = 0;
     }
+placed:
     avail[n/2]--;
     expect -= h;
+    sf->n = n;
     goto push;
 
     pop:
-    if(--lev < 0) {
+    if(--sf < stack) {
         k *= 2;
         if(fix_sub) {
             if(psh) bk[psl] = bk[psl+1] = bk[psl+2] = 1;
@@ -342,14 +357,26 @@ skip_fix:
         }
         return k;
     }
-    --sf;
-    p = sf->p, n = sf->n, h1 = sf->h1, h2 = sf->h2;
+    p = sf->p, n = sf->n, h1 = sf->h1, h2 = sf->h2, d = sf->d;
     h = holes[n/2];
     if(!(n&1)) {
-        for(l = 0; l < h; ++l) p[l] = 1;
+        p[0] = p[1] = 1;
+        if(h == 2) goto unplaced;
+        p[2] = 1;
+        if(h == 3) goto unplaced;
+        p[3] = 1;
+        if(h == 4) goto unplaced;
+        p[4] = 1;
     } else {
-        for(l = 0; l < h; ++l) p[16*l] = 1;
+        p[0] = p[16] = 1;
+        if(h == 2) goto unplaced;
+        p[32] = 1;
+        if(h == 3) goto unplaced;
+        p[48] = 1;
+        if(h == 4) goto unplaced;
+        p[64] = 1;
     }
+unplaced:
     avail[n/2]++;
     expect += h;
     goto next;
@@ -358,7 +385,8 @@ skip_fix:
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 25m06s
+// foot -O 23m04s
+// foot t8 -O 1m29.7s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
@@ -588,6 +616,7 @@ void testBoard()
 
 int main(int argc, const char **argv)
 {
+    int e; // the error
     const char *args = argc > 1 ? argv[1] : "";
     if(strchr(args, 'b')) testBoard();
     if(strchr(args, 'f')) unroll = 0, foot = 1;
@@ -599,9 +628,24 @@ int main(int argc, const char **argv)
 
     printf("%lld arrangements\n", cnt * 8);
     if(foot) {
-        printf("%lld footprints error %lld\n", cnt_foot/lcm, cnt_foot%lcm);
-        printf("%lld diagonal error %lld\n", cnt_foot_sym/lcm, cnt_foot_sym%lcm);
-        if(cnt_foot_ref) printf("%lld reflection error %lld\n", cnt_foot_ref/lcm, cnt_foot_ref%lcm);
+        e = cnt_foot % lcm;
+        if(!e)
+            printf("%lld footprints\n", cnt_foot/lcm);
+        else if(e + lcm/100 >= lcm) // 99% is good enough
+            printf("%lld footprints roundup\n", cnt_foot/lcm + 1);
+        else printf("%lld footprints error %d\n", cnt_foot/lcm, e);
+        e = cnt_foot_sym % lcm;
+        if(!e)
+            printf("%lld diagonal\n", cnt_foot_sym/lcm);
+        else if(e + lcm/100 >= lcm)
+            printf("%lld diagonal roundup\n", cnt_foot_sym/lcm + 1);
+        else printf("%lld diagonal error %d\n", cnt_foot_sym/lcm, e);
+        e = cnt_foot_ref % lcm;
+        if(!e)
+            printf("%lld reflection\n", cnt_foot_ref/lcm);
+        else if(e + lcm/100 >= lcm)
+            printf("%lld reflection roundup\n", cnt_foot_ref/lcm + 1);
+        else printf("%lld reflection error %d\n", cnt_foot_ref/lcm, e);
     }
 }
 
@@ -638,8 +682,8 @@ The software is complex and subtle, can we validate it to some extent?
 Run with ft6, which restricts to a 6 by 6 board.
 
 6687136 arrangements
-2575207 footprints error 45945896
-152 symmetric error 0
+2575208 footprints roundup
+152 symmetric
 
 There are 38 symmetric footprints, up to rotations.
 Let's try to confirm that by hand. It should be manageable.
@@ -981,6 +1025,16 @@ B2 starting sub or battle doesn't work.
 That completes Carrier starting at C2.
 
 The score is 38 out of 38.
+
+It's surprising that some patterns, confined to 6 by 6,
+don't fit within our lcm. But there are such. This has k = 38.
+111111
+000011
+000011
+000011
+011111
+000000
+
 *********************************************************************/
 
 /*********************************************************************
