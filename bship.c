@@ -290,6 +290,11 @@ skip_fix:
     if(!p[112]) goto got_h2;
     ++h2;
     got_h2:
+    if(expect < 5 || expect == 5 && avail[0]) {
+// one ship left to place, this has to be it, or bust.
+        if(expect == h1 || expect == h2) ++k;
+        goto pop;
+    }
     sf->h1 = h1, sf->h2 = h2;
     n = -1, d = 1;
     if(h1 == 1 || h1 == 2 && !avail[3])
@@ -307,7 +312,6 @@ skip_fix:
     // try horizontal first, then vertical.
     if(!(n&1)) {
         if(h > h1) goto next;
-        if(expect == h) { ++k; goto pop; }
     // there's room, but see if it leaves an isolated square
         if(h1 == h + 1 && !(p[h+16]|p[h-16])) goto next;
         if(!avail[3] && h1 == h + 2 && !(p[h+17]|p[h-15])) goto next;
@@ -323,7 +327,6 @@ skip_fix:
         p[4] = 0;
     } else {
         if(h > h2) goto next;
-        if(expect == h) { ++k; goto pop; }
         if(h2 == h + 1 && !(p[16*h+1]|p[16*h-1])) goto next;
         if(!avail[3] && h2 == h + 2 && !(p[16*h+17]|p[16*h+15])) goto next;
         p[0] = p[16] = 0;
@@ -385,8 +388,8 @@ unplaced:
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 23m04s
-// foot t8 -O 1m29.7s
+// foot -O 22m11s
+// foot t8 -O 1m25.6s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
