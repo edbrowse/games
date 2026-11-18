@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef unsigned char uchar;
+
 // output of bship f, after about an hour.
 // 30093975536 arrangements
 // 13659009420 footprints roundup
@@ -192,17 +194,18 @@ done:
 }
 
 // Remember where we placed some ships, to make compute_k run faster.
-static unsigned char fix_pt;
-static unsigned char psl, psh; // sub
-static unsigned char pcl, pch; // cruiser
-static unsigned char pbl, pbh; // battle
+static uchar fix_pt;
+static uchar psl, psh; // sub
+static uchar pcl, pch; // cruiser
+static uchar pbl, pbh; // battle
+static uchar pal; // aircraft location, always horizontal
 
 
 int compute_k()
 {
     static const char holes[4] = {5, 4, 3, 2};
     char avail[4];
-    unsigned char fix_sub = 0, fix_cruiser = 0, fix_battle = 0;
+    uchar fix_sub = 0, fix_cruiser = 0, fix_battle = 0;
     char expect = 17;
     int n, h, h1, h2, d, l;
     char *p = bk + 17;
@@ -235,7 +238,14 @@ if(psl == 255) goto skip_fix; // for textBoard()
         fix_battle = 1;
 
 // if everything is fixed there is nothing to do
-    if(fix_pt & fix_sub & fix_cruiser & fix_battle) return 2;
+    if(fix_battle & fix_pt) {
+        if(fix_sub & fix_cruiser) return 2;
+// If three ships are fixed we may be able to discern.
+        if(fix_cruiser)
+            return (psh && (psl == pal + 5 || pal == psl + 3)) ? 4 : 2;
+        if(fix_sub)
+            return (pch && (pcl == pal + 5 || pal == pcl + 3)) ? 4 : 2;
+    }
 
     if(fix_sub) {
         if(psh) bk[psl] = bk[psl+1] = bk[psl+2] = 0;
@@ -388,8 +398,8 @@ unplaced:
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 22m11s
-// foot t8 -O 1m25.6s
+// foot -O 20m59.6s
+// foot t8 -O 1m24.2s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
@@ -586,6 +596,7 @@ void placeCarrier()
         for(int y = 1; y <= (top+1)/2 - 2; ++y) {
         if(foot) printf("carrier %d,%d\n", x, y);
         b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = b[x][y+4] = 1;
+        pal = 16*x + y;
         placeBattle();
         b[x][y] = b[x][y+1] = b[x][y+2] = b[x][y+3] = b[x][y+4] = 0;
         }
