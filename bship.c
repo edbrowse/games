@@ -240,11 +240,25 @@ if(psl == 255) goto skip_fix; // for textBoard()
 // if everything is fixed there is nothing to do
     if(fix_battle & fix_pt) {
         if(fix_sub & fix_cruiser) return 2;
-// If three ships are fixed we may be able to discern.
-        if(fix_cruiser)
-            return (psh && (psl == pal + 5 || pal == psl + 3)) ? 4 : 2;
-        if(fix_sub)
-            return (pch && (pcl == pal + 5 || pal == pcl + 3)) ? 4 : 2;
+/* We may still be able to discern.
+Warning! This assumes top <= 10.
+But if top > 10 we will probably overrun the long long;
+lots of things would have to be redesigned.
+In particular, we can't have carrier sub cruiser in a line.
+But carrier can be in line with one of the sister ships. */
+        if(psh && (psl == pal + 5 || pal == psl + 3)) return 4;
+        if(pch && (pcl == pal + 5 || pal == pcl + 3)) return 4;
+        if(psh | pch) return 2;
+// now both vertical, check for corner.
+        if(psl == pal - 33 && pcl == pal - 81) return 4;
+        if(pcl == pal - 33 && psl == pal - 81) return 4;
+        if(psl == pal - 1 && pcl == pal + 47) return 4;
+        if(pcl == pal - 1 && psl == pal + 47) return 4;
+        if(psl == pal+ 5 && pcl == pal + 53) return 4;
+        if(pcl == pal+ 5 && psl == pal + 53) return 4;
+        if(psl == pal- 27 && pcl == pal - 75) return 4;
+        if(pcl == pal- 27 && psl == pal - 75) return 4;
+        return 2;
     }
 
     if(fix_sub) {
@@ -398,8 +412,8 @@ unplaced:
 // place the ships from largest to smallest, from carrier to pt.
 // The routines to place them are in reverse order, for convenience of reference.
 // 40.5s -O 17s
-// foot -O 20m59.6s
-// foot t8 -O 1m24.2s
+// foot -O 20m06s
+// foot t8 -O 1m22s
 void placePT_standard()
 {
     for(int x = 1; x <= top; ++x)
@@ -548,7 +562,7 @@ void placeCruiser()
             }
             if(x <= top-2 && !(b[x+1][y] | b[x+2][y]) &&
 // special code for 5 by 5 board
-            (top > 5 || !(b[1][1]&b[2][3]&b[5][3]) || y < 3)) {
+            !(top == 5 && (b[1][1]&b[2][3]&b[5][3]) && y > 3)) {
                 b[x][y] = b[x+1][y] = b[x+2][y] = 1;
                 pcl = 16*x + y, pch = 0;
                 placeSub();
